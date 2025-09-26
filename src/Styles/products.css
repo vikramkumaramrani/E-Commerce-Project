@@ -1,0 +1,20 @@
+/* Image wrapper overflow hide karega taake zoom andar rahe */
+.product-card .image-wrapper {
+  overflow: hidden;
+  border-top-left-radius: 0.375rem;  /* Bootstrap card radius match */
+  border-top-right-radius: 0.375rem;
+}
+
+/* Smooth zoom effect */
+.product-card .zoom-img {
+  transition: transform 0.5s ease;   /* Smooth animation */
+}
+
+/* Hover par zoom + thoda upar arrow jaisa feel */
+.product-card:hover .zoom-img {
+  transform: scale(1.05) translateY(-3px);
+}
+
+#view-btn:hover{
+background-color: #e6e5e5 !important;
+}

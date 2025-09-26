@@ -1,0 +1,37 @@
+body {
+    background-color: #215c78;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    margin-top: 87px;
+}
+h2{
+    padding-top: 50px;
+}
+#select{
+box-shadow: none;
+}
+.form-select {
+  border-radius: 5px !important;
+
+}
+option{
+    margin-top: 10px;
+}
+#btn{
+    font-weight: 650;
+    border: 1px solid #000000 !important;
+}
+#btn:hover{
+background-color: #e4e3e3;
+}
+.Add-cart{
+    background-color: #000000;
+}
+.Add-cart:hover{
+    background-color: #444444 !important;
+    border-color: #444444;
+}
+
