@@ -71,7 +71,7 @@ function Dashboard() {
           <Card className="p-3 shadow-sm">
             <Card.Body className="text-center">
               <h5>Total Products</h5>
-              <h2>6</h2>
+              <h2 className="pt-3">6</h2>
               <p className="text-muted">0 low stock</p>
               <FiBox size={20} />
             </Card.Body>
@@ -82,7 +82,7 @@ function Dashboard() {
           <Card className="p-3 shadow-sm h-100">
             <Card.Body className="text-center">
               <h5>Total Orders</h5>
-              <h2>0</h2>
+              <h2 className="pt-3">0</h2>
               <p className="text-muted">0 pending</p>
               <FiShoppingCart size={20} />
             </Card.Body>
@@ -93,7 +93,7 @@ function Dashboard() {
           <Card className="p-3 shadow-sm h-100">
             <Card.Body className="text-center">
               <h5>Total Revenue</h5>
-              <h2>$0.00</h2>
+              <h2 className="pt-3">$0.00</h2>
               <p className="text-muted">All time revenue</p>
               <FiDollarSign size={20} />
             </Card.Body>
@@ -104,7 +104,7 @@ function Dashboard() {
           <Card className="p-3 shadow-sm h-100">
             <Card.Body className="text-center">
               <h5>Active Users</h5>
-              <h2>1</h2>
+              <h2 className="pt-3">1</h2>
               <p className="text-muted">Registered users</p>
               <FiUsers size={20} />
             </Card.Body>
