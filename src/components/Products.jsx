@@ -1,7 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./../Styles/products.css";
+import { Toast, ToastContainer } from "react-bootstrap";
 
 function Products() {
+  const navigate = useNavigate();
+  const [Cart, setCart] = useState([]);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState("");
+  const handleAddToCart = (productName) => {
+    setCart((prev) => [...prev, productName]);
+    setToastMsg(`${productName} added to cart!`);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2500);
+  };
   return (
     <>
       <div
@@ -15,11 +27,7 @@ function Products() {
       </div>
 
       <div className="container py-5">
-
-
-
         <div className="row g-4">
-
           {/* Card 1 */}
           <div className="col-md-4">
             <div className="card shadow-sm h-100 product-card">
@@ -43,8 +51,8 @@ function Products() {
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <h4 className="text-primary">$99.99</h4>
                   <div className="d-flex gap-2">
-                    <button className="btn btn-outline-primary btn-sm">View</button>
-                    <button className="btn btn-dark btn-sm">
+                    <button className="btn btn-outline-primary btn-sm" onClick={() => navigate('/product/Wireless Headphones')}>View</button>
+                    <button className="btn btn-dark btn-sm" onClick={() => handleAddToCart("Wireless Headphones") }>
                       <i className="bi bi-cart"></i> Add
                     </button>
                   </div>
@@ -78,8 +86,8 @@ function Products() {
                 <div className="d-flex justify-content-between align-items-center mb-2">
                   <h4 className="text-primary">$149.99</h4>
                   <div className="d-flex gap-2">
-                    <button className="btn btn-outline-primary btn-sm">View</button>
-                    <button className="btn btn-dark btn-sm">
+                    <button className="btn btn-outline-primary btn-sm" onClick={() => navigate('/product/Smart Watch')}>View</button>
+                    <button className="btn btn-dark btn-sm" onClick={() => handleAddToCart("Smart Watch") }>
                       <i className="bi bi-cart"></i> Add
                     </button>
                   </div>
@@ -113,8 +121,8 @@ function Products() {
       <div className="d-flex justify-content-between align-items-center mb-2">
         <h4 className="text-primary">$79.99</h4>
         <div className="d-flex gap-2">
-          <button className="btn btn-outline-primary btn-sm">View</button>
-          <button className="btn btn-dark btn-sm">
+          <button className="btn btn-outline-primary btn-sm" onClick={() => navigate('/product/Yoga Mat')}>View</button>
+          <button className="btn btn-dark btn-sm" onClick={() => handleAddToCart("Yoga Mat") }>
             <i className="bi bi-cart"></i> Add
           </button>
         </div>
@@ -130,12 +138,27 @@ function Products() {
 
         </div>
         <div className="text-center mt-5" >
-          <button id="view-btn" className="btn btn-success"  style={{ backgroundColor: "#ffffffff", color: "black", borderColor: "#b3b1b1ff", fontWeight: "500" }}>
+          <button
+            id="view-btn"
+            className="btn btn-success"
+            style={{
+              backgroundColor: "#ffffffff",
+              color: "black",
+              borderColor: "#b3b1b1ff",
+              fontWeight: "500"
+            }}
+            onClick={() => navigate('/products')}
+          >
             View All Products
           </button>
         </div>
-
       </div>
+      
+      <ToastContainer position="fixed" className="p-3" style={{ zIndex: 9999, bottom: 0, end: 0, right: 0 }}>
+        <Toast show={showToast} onClose={() => setShowToast(false)} bg="dark" delay={2500} autohide>
+          <Toast.Body className="text-white">{toastMsg}</Toast.Body>
+        </Toast>
+      </ToastContainer>
     </>
   );
 }

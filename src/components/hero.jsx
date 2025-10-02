@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from "react-router-dom";
 
 function Hero() {
   return (
@@ -13,12 +14,18 @@ function Hero() {
       </p>
 
       <div className="d-flex  align-items-center gap-3 mt-4">
-        <a href="#" className="btn btn-primary btn-lg">
+        <NavLink 
+          to="/products" 
+          className="btn btn-primary btn-lg"
+        >
           Shop Now <i className="bi bi-arrow-right"></i>
-        </a>
-        <a href="#" className="btn btn-outline-secondary btn-lg">
+        </NavLink>
+        <NavLink 
+          to="/products?category=Electronics" 
+          className="btn btn-outline-secondary btn-lg"
+        >
           Browse Electronics
-        </a>
+        </NavLink>
       </div>
       
     </div>

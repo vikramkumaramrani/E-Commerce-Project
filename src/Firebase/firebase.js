@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";   // ✅ Auth import
 
-// Your Firebase configuration
+
 const firebaseConfig = {
   apiKey: "AIzaSyDNK-5ZHw2tGVLjfnwhoVQDvnA8e48Iltw",
   authDomain: "e-commerce-project-2f93d.firebaseapp.com",
@@ -13,9 +13,9 @@ const firebaseConfig = {
   measurementId: "G-MCGB4NB127",
 };
 
-// ✅ Initialize Firebase
+//  Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// ✅ Export Auth instance (named export)
+//  Export Auth instance (named export)
 export const auth = getAuth(app);

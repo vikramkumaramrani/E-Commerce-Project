@@ -40,19 +40,27 @@ function Dashboard() {
 
  <Row className="mb-4 g-2 justify-content-center text-center">
         <Col xs={12} md={3}>
-          <Button variant="dark" className="w-100">
-            <FiBox className="me-2" />
-            Manage Products
-          </Button>
+          <Button
+      variant="dark"
+      className="w-100"
+  onClick={() => navigate("/productManage")}
+    >
+      <FiBox className="me-2" />
+      Manage Products
+    </Button>
         </Col>
         <Col xs={12} md={3}>
-          <Button variant="outline-dark" className="w-100">
+          <Button variant="outline-dark" className="w-100"
+          onClick={() => navigate("/OrderManage")}
+          >
             <FiShoppingCart className="me-2" />
             Manage Orders
           </Button>
         </Col>
         <Col xs={12} md={3}>
-          <Button variant="outline-dark" className="w-100">
+          <Button variant="outline-dark" className="w-100"
+          onClick={() => navigate("/ProductManage")}
+          >
             <FiPlus className="me-2" />
             Add Product
           </Button>

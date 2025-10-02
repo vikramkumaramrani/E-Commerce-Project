@@ -4,7 +4,7 @@ import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 
-// Firebase auth import
+
 import { auth } from "../Firebase/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
@@ -22,7 +22,7 @@ function Signup() {
     e.preventDefault();
     setError("");
 
-    // Validation
+   
     if (password.length < 8) {
       setError("Password must be at least 8 characters");
       return;
@@ -34,14 +34,14 @@ function Signup() {
     }
 
     try {
-      // Create Firebase user
+      
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-      // Set display name
+      
       await updateProfile(userCredential.user, { displayName: fullName });
 
       alert("Account created successfully!");
-      navigate("/login"); // Redirect to login after signup
+      navigate("/login"); 
     } catch (err) {
       setError(err.message);
     }

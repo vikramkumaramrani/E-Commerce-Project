@@ -7,6 +7,9 @@ import Login from "./Pages/Login.jsx";
 import Signup from "./Pages/Signup.jsx";
 import Product from "./Pages/Product.jsx";
 import Dashboard from "./Pages/Dashboard.jsx";
+import ProductManage from "./Pages/ProductManage.jsx";
+import OrderManage from "./Pages/OrderManage.jsx";
+import ProductDetail from "./components/ProductDetail.jsx";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 
@@ -17,14 +20,18 @@ createRoot(document.getElementById("root")).render(
     <MyProvider>
       <BrowserRouter>
         <Routes>
-         
+
           <Route path="/" element={<Navigate to="/home" />} />
-          
+
           <Route path="/Product" element={<Product />} />
+          <Route path="/products" element={<Product />} />
           <Route path="/Login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard />} /> 
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/productManage" element={<ProductManage />} />
+          <Route path="/orderManage" element={<OrderManage />} />
           <Route path="/home" element={<Home />} />
+          <Route path="/product/:productName" element={<ProductDetail />} />
         </Routes>
       </BrowserRouter>
     </MyProvider>

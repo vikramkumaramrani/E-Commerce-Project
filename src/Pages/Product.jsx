@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Card, Button, Badge } from "react-bootstrap";
+import { useLocation } from "react-router-dom";
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "./product.css";
-import coffee from "./coffee.jpg";
+import coffee from "../assets/images/coffee.jpg";
 
 function Product() {
+  const location = useLocation();
   const allProducts = [
     { id: 1, name: "Coffee Maker", price: 129.99, stock: 45, category: "Home", Image: "{lamp.jpg}" },
     { id: 2, name: "Laptop", price: 899.99, stock: 10, category: "Electronics" },
@@ -19,6 +21,15 @@ function Product() {
   const [category, setCategory] = useState("all");
   const [price, setPrice] = useState("all");
   const [sort, setSort] = useState("name");
+
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const cat = params.get("category");
+    if (cat && ["electronics", "fashion", "home"].includes(cat.toLowerCase())) {
+      setCategory(cat.toLowerCase());
+    }
+  }, [location.search]);
 
   //  Filter + Sort Logic
   let filteredProducts = allProducts.filter((p) =>
@@ -64,7 +75,7 @@ function Product() {
             </Col>
           </Row>
 
-          {/* Filter Bar wapas */}
+        
           <Row className="g-3 align-items-center p-3 bg-white rounded shadow-sm mb-4">
             <Col xs={12} md={3}>
               <Form.Group>

@@ -23,7 +23,7 @@ function Login() {
      
       await signInWithEmailAndPassword(auth, email, password);
 
-      // Sirf admin allow
+     
       if (email === "admin@ecommerce.com" && password === "admin123") {
         navigate("/dashboard"); 
       } else {
