@@ -1,20 +1,38 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-
-const categoryCounts = {
-  Electronics: 2,
-  Sports: 3,
-  Home: 1,
-};
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "../Firebase/firebase"; // ✅ adjust path if needed
 
 function Category() {
+  const [categoryCounts, setCategoryCounts] = useState({});
   const navigate = useNavigate();
+
+  // Fetch product data from Firestore
+  useEffect(() => {
+    const fetchCategoryCounts = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "products"));
+        const counts = {};
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const category = data.category || "Uncategorized";
+          counts[category] = (counts[category] || 0) + 1;
+        });
+
+        setCategoryCounts(counts);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategoryCounts();
+  }, []);
 
   const handleCategoryClick = (category) => {
     let selectedCategory = category;
-    if (category === "Sports") selectedCategory = "Fashion";
-   
+    if (category === "Sports") selectedCategory = "Fashion"; // ✅ keep your custom mapping
+
     navigate(`/products?category=${encodeURIComponent(selectedCategory)}`);
   };
 
@@ -32,56 +50,23 @@ function Category() {
 
       <div className="container my-5">
         <div className="row g-4">
-          {/* Card 1 */}
-          <div className="col-md-4 col-sm-6">
-            <div
-              className="card text-center shadow-sm p-3"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleCategoryClick("Electronics")}
-            >
-              <div className="card-body">
-                <h5 className="card-title fw-bold">Electronics</h5>
-                <p className="text-muted">
-                  {categoryCounts.Electronics}{" "}
-                  {categoryCounts.Electronics === 1 ? "product" : "products"}
-                </p>
+          {Object.keys(categoryCounts).map((category, index) => (
+            <div key={index} className="col-md-4 col-sm-6">
+              <div
+                className="card text-center shadow-sm p-3"
+                style={{ cursor: "pointer" }}
+                onClick={() => handleCategoryClick(category)}
+              >
+                <div className="card-body">
+                  <h5 className="card-title fw-bold">{category}</h5>
+                  <p className="text-muted">
+                    {categoryCounts[category]}{" "}
+                    {categoryCounts[category] === 1 ? "product" : "products"}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Card 2 */}
-          <div className="col-md-4 col-sm-6">
-            <div
-              className="card text-center shadow-sm p-3"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleCategoryClick("Sports")}
-            >
-              <div className="card-body">
-                <h5 className="card-title fw-bold">Sports</h5>
-                <p className="text-muted">
-                  {categoryCounts.Sports}{" "}
-                  {categoryCounts.Sports === 1 ? "product" : "products"}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 */}
-          <div className="col-md-4 col-sm-6">
-            <div
-              className="card text-center shadow-sm p-3"
-              style={{ cursor: "pointer" }}
-              onClick={() => handleCategoryClick("Home")}
-            >
-              <div className="card-body">
-                <h5 className="card-title fw-bold">Home</h5>
-                <p className="text-muted">
-                  {categoryCounts.Home}{" "}
-                  {categoryCounts.Home === 1 ? "product" : "products"}
-                </p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </>

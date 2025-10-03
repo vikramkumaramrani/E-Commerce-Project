@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Card, Button, Badge } from "react-bootstrap";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../Firebase/firebase"; // make sure you have firebase.js set up
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "./product.css";
@@ -8,21 +10,25 @@ import coffee from "../assets/images/coffee.jpg";
 
 function Product() {
   const location = useLocation();
-  const allProducts = [
-    { id: 1, name: "Coffee Maker", price: 129.99, stock: 45, category: "Home", Image: "{lamp.jpg}" },
-    { id: 2, name: "Laptop", price: 899.99, stock: 10, category: "Electronics" },
-    { id: 3, name: "Shoes", price: 59.99, stock: 30, category: "Fashion" },
-    { id: 4, name: "Headphones", price: 199.99, stock: 20, category: "Electronics" },
-    { id: 5, name: "T-Shirt", price: 25.0, stock: 60, category: "Fashion" },
-    { id: 6, name: "Watch", price: 149.99, stock: 12, category: "Fashion" },
-  ];
-
+  const [allProducts, setAllProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [price, setPrice] = useState("all");
   const [sort, setSort] = useState("name");
 
+  // 🔹 Load products from Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "products"), (snapshot) => {
+      const list = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setAllProducts(list);
+    });
+    return () => unsub();
+  }, []);
 
+  // 🔹 Category from query param (?category=fashion)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const cat = params.get("category");
@@ -31,14 +37,14 @@ function Product() {
     }
   }, [location.search]);
 
-  //  Filter + Sort Logic
+  // 🔹 Filter + Sort Logic
   let filteredProducts = allProducts.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase())
+    p.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   if (category !== "all") {
     filteredProducts = filteredProducts.filter(
-      (p) => p.category.toLowerCase() === category
+      (p) => p.category?.toLowerCase() === category
     );
   }
 
@@ -75,7 +81,7 @@ function Product() {
             </Col>
           </Row>
 
-        
+          {/* 🔹 Filters Row */}
           <Row className="g-3 align-items-center p-3 bg-white rounded shadow-sm mb-4">
             <Col xs={12} md={3}>
               <Form.Group>
@@ -135,6 +141,7 @@ function Product() {
             </Col>
           </Row>
 
+          {/* 🔹 Product Count */}
           <Row className="mb-2">
             <Col>
               <p className="fw-semibold mb-1 text-secondary">
@@ -143,7 +150,7 @@ function Product() {
             </Col>
           </Row>
 
-          {/*  Product Grid */}
+          {/* 🔹 Product Grid */}
           <Row className="g-4">
             {filteredProducts.map((p) => (
               <Col key={p.id} xs={12} sm={6} md={4} lg={3}>
@@ -151,18 +158,20 @@ function Product() {
                   <div className="image-wrapper">
                     <Card.Img
                       variant="top"
-                      src={coffee} 
+                      src={coffee} // 🔥 show Firestore image if available
                       className="zoom-img"
                       style={{ height: "200px", objectFit: "cover" }}
                     />
                   </div>
                   <Card.Body>
                     <div className="d-flex align-items-center mb-2">
-                      <Badge bg="secondary" className="me-2">{p.category}</Badge>
+                      <Badge bg="secondary" className="me-2">
+                        {p.category}
+                      </Badge>
                       <h5 className="mb-0">{p.name}</h5>
                     </div>
                     <Card.Text>
-                      Programmable coffee maker with built-in grinder and thermal carafe.
+                      {p.description || "No description available."}
                     </Card.Text>
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <h4 className="text-primary mb-0">${p.price}</h4>
@@ -171,7 +180,13 @@ function Product() {
                       </div>
                     </div>
                     <div className="d-flex gap-2">
-                      <Button variant="outline-primary" size="sm" className="flex-fill">
+                      <Button
+                        as={Link}
+                        to={`/product/${p.id}`}   // 🔹 navigate with Firestore doc id
+                        variant="outline-primary"
+                        size="sm"
+                        className="flex-fill"
+                      >
                         View Details
                       </Button>
                       <Button variant="dark" size="sm" className="flex-fill">
@@ -186,10 +201,9 @@ function Product() {
               </Col>
             ))}
           </Row>
-         
         </Container>
       </div>
-       <Footer />
+      <Footer />
     </>
   );
 }
