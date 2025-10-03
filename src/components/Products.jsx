@@ -77,7 +77,7 @@ function Products() {
               </div>
               <div className="card-body">
                 <h5 className="card-title d-flex justify-content-between align-items-center">
-                  Smart Watch <span className="badge bg-secondary">Sports</span>
+                  Shoes <span className="badge bg-secondary">Sports</span>
                 </h5>
                 <p className="card-text">
                   Comfortable running shoes with advanced cushioning technology.

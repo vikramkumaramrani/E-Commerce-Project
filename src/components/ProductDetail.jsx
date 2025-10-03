@@ -1,187 +1,163 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Button, Toast, ToastContainer } from "react-bootstrap";
-import { BsArrowLeft } from "react-icons/bs";
-import MyNavbar from "./MyNavbar.jsx";
-import { Link } from "react-router-dom";
-import Yoga from "../assets/images/yoga.jpg";
-import Shoes from "../assets/images/shoes.jpg"; 
-import Headphones from "../assets/images/headphone.jpg";
+import React, { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Breadcrumb,
+  Card,
+  Toast,
+  ToastContainer,
+} from "react-bootstrap";
+// import MyNavbar from "../components/MyNavbar";
+import Footer from "../components/Footer";
 
-
-const productData = {
-  "Wireless Headphones": {
-    name: "Wireless Bluetooth Headphones",
-    image: Headphones, 
-    price: 99.99,
-    category: "Electronics",
-    rating: 4.5,
-    reviews: 123,
-    description: "Premium quality wireless headphones with noise cancellation and 30-hour battery life.",
-    stock: 50,
-    features: [
-      "Free shipping over $50",
-      "1 year warranty",
-      "30-day returns"
-    ],
-    related: {
-      name: "Smartphone Case",
-      image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=500&h=500&fit=crop",
-      price: 24.99,
-      description: "Durable protective case for smartphones with shock absorption technology."
-    }
-  },
-  "Smartphone Case": {
-    name: "Wireless Bluetooth Headphones",
-    image: Headphones,
-    price: 99.99,
-    category: "Electronics",
-    rating: 4.2,
-    reviews: 87,
-    description: "Premium quality wireless headphones with noise cancellation and 30-hour battery life.",
-    stock: 100,
-    features: [
-      "Free shipping over $50",
-      "1 year warranty",
-      "30-day returns"
-    ],
-    related: {
-      name: "Wireless Bluetooth Headphones",
-      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop",
-      price: 99.99,
-      description: "Premium quality wireless headphones with noise cancellation and 30-hour battery life."
-    }
-  },
-  "Yoga Mat": {
-    name: "Yoga Mat",
-    image: Yoga, 
-    price: 79.99,
-    category: "Sports",
-    rating: 4.3,
-    reviews: 45,
-    description: "Non-slip yoga mat made from eco-friendly materials.",
-    stock: 30,
-    features: [
-      "Free shipping over $50",
-      "1 year warranty",
-      "30-day returns"
-    ],
-    related: {
-      name: "Running Shoes",
-      image: Shoes, 
-      price: 59.99,
-      description: "Comfortable running shoes with advanced cushioning technology."
-    }
-  }
-};
+import coffee from "../assets/images/coffee.jpg";
+import laptop from "../assets/images/laptop.jpg";
+import shoes from "../assets/images/shoes.jpg";
+import headphones from "../assets/images/headphone.jpg";
+import tshirt from "../assets/images/tshirt.jpg";
+import watch from "../assets/images/watch.jpg";
 
 function ProductDetail() {
+  const { id } = useParams();
   const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState("");
+
+  const allProducts = [
+    { id: 1, name: "Coffee Maker", price: 129.99, stock: 25, category: "Home", image: coffee, description: "Programmable coffee maker with built-in grinder and thermal carafe." },
+    { id: 2, name: "Laptop", price: 899.99, stock: 10, category: "Electronics", image: laptop, description: "High-performance laptop with 16GB RAM and SSD storage." },
+    { id: 3, name: "Shoes", price: 59.99, stock: 30, category: "Fashion", image: shoes, description: "Comfortable running shoes with breathable fabric." },
+    { id: 4, name: "Headphones", price: 199.99, stock: 20, category: "Electronics", image: headphones, description: "Noise-cancelling wireless headphones with 30hr battery life." },
+    { id: 5, name: "T-Shirt", price: 25.0, stock: 60, category: "Fashion", image: tshirt, description: "Soft cotton t-shirt available in multiple colors." },
+    { id: 6, name: "Watch", price: 149.99, stock: 12, category: "Fashion", image: watch, description: "Stylish analog watch with leather strap." },
+  ];
+
+  const product = allProducts.find((p) => p.id === parseInt(id));
+
+  if (!product) {
+    return <h2 className="text-center py-5">Product not found!</h2>;
+  }
+
+  const related = allProducts.filter(
+    (p) => p.category === product.category && p.id !== product.id
+  );
+
   const handleAddToCart = () => {
-    setToastMsg(`${quantity} ${product.name}(s) added to cart!`);
+    // yahan future me cart logic add kar sakte ho
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 2500);
   };
-  useEffect(() => {
-    const originalBg = document.body.style.background;
-    document.body.style.background = '#f7f9fa';
-    return () => { document.body.style.background = originalBg; };
-  }, []);
-  const { productName } = useParams();
-  const navigate = useNavigate();
-  const product = productData[productName] || productData["Wireless Headphones"];
-  const [quantity, setQuantity] = useState(1);
-  const handleDecrease = () => setQuantity(q => Math.max(1, q - 1));
-  const handleIncrease = () => setQuantity(q => q + 1);
 
   return (
     <>
-      <MyNavbar />
-  <div className="container py-5" style={{ background: '#f7f9fa', minHeight: '100vh' }}>
-        
-        <nav aria-label="breadcrumb" className="mb-2">
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item">
-              <Link to="/product" style={{ color: '#111', textDecoration: 'none', fontWeight: 500 }}>Products</Link>
-            </li>
-            <li className="breadcrumb-item">
-              <Link to={`/product?category=${encodeURIComponent(product.category)}`}
-                style={{ color: '#111', textDecoration: 'none', fontWeight: 500 }}>
-                {product.category}
-              </Link>
-            </li>
-            <li className="breadcrumb-item active" aria-current="page">
-              {product.name}
-            </li>
-          </ol>
-        </nav>
-      <Button variant="light" onClick={() => navigate("/products")} className="mb-3">
-  <BsArrowLeft style={{marginRight: '6px', marginBottom: '2px'}} />
-  <span style={{fontWeight: 600}}>Back to Products</span>
-      </Button>
-      <div className="row">
-        <div className="col-md-6">
-          <img src={product.image} alt={product.name} className="img-fluid rounded" style={{ }} />
-        </div>
-        <div className="col-md-6">
-          <span className="badge bg-light text-dark mb-2">{product.category}</span>
-          <h2>{product.name}</h2>
-          <div className="mb-2">
-            <span className="text-warning">{'★'.repeat(Math.floor(product.rating))}{'☆'.repeat(5-Math.floor(product.rating))}</span>
-            <span className="ms-2 text-muted">({product.rating} - {product.reviews} reviews)</span>
+      {/* <MyNavbar /> */}
+
+      <Container className="py-4">
+       
+        <Breadcrumb className="mt-2" style={{ ["--bs-breadcrumb-divider"]: "'>'" }}>
+          <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/" }}>
+            Home
+          </Breadcrumb.Item>
+          <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/products" }}>
+            Products
+          </Breadcrumb.Item>
+          <Breadcrumb.Item active>{product.name}</Breadcrumb.Item>
+        </Breadcrumb>
+
+        {/* ✅ Product Detail Section */}
+        <Row className="gy-4 align-items-center">
+          <Col xs={12} md={6}>
+            <img
+              src={product.image}
+              alt={product.name}
+              className="img-fluid rounded shadow"
+              style={{ width: "100%", height: "550px", objectFit: "cover" }}
+            />
+          </Col>
+
+          <Col xs={12} md={6}>
+            <h2>{product.name}</h2>
+            <div className="mb-2 text-warning">
+              ★★★★☆ <span className="text-muted">(4.5 - 123 reviews)</span>
+            </div>
+            <h3 className="text-primary">${product.price}</h3>
+            <p className="text-muted">{product.description}</p>
+            <p>
+              <strong className="text-success">{product.stock} in stock</strong>
+            </p>
+
+            <div className="d-flex flex-wrap gap-2 mb-3">
+              <Button
+                variant="dark"
+                className="flex-fill"
+                onClick={handleAddToCart}
+              >
+                Add to Cart - ${product.price}
+              </Button>
+            </div>
+
+            <div className="d-flex flex-wrap gap-3 text-muted small">
+              <span>🚚 Free shipping over $50</span>
+              <span>🛡️ 1 year warranty</span>
+              <span>↩️ 30-day returns</span>
+            </div>
+          </Col>
+        </Row>
+
+        {/* ✅ Related Products Section */}
+        {related.length > 0 && (
+          <div className="mt-5">
+            <h4>Related Products</h4>
+            <Row className="g-4 mt-2">
+              {related.map((r) => (
+                <Col key={r.id} xs={12} sm={6} md={4} lg={3}>
+                  <Card className="h-100 shadow-sm">
+                    <Card.Img
+                      variant="top"
+                      src={r.image}
+                      alt={r.name}
+                      style={{ height: "200px", width: "100%", objectFit: "cover" }}
+                    />
+                    <Card.Body>
+                      <Card.Title as="h6">{r.name}</Card.Title>
+                      <Card.Text className="text-primary fw-bold">
+                        ${r.price}
+                      </Card.Text>
+                      <Link to={`/product/${r.id}`}>
+                        <Button
+                          size="sm"
+                          variant="outline-primary"
+                          className="w-100"
+                        >
+                          View
+                        </Button>
+                      </Link>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
           </div>
-          <h3 className="text-primary mb-3">${product.price.toFixed(2)}</h3>
-          <h5>Description</h5>
-          <p>{product.description}</p>
-          <div className="mb-2">
-            <span className="badge bg-success">{product.stock} in stock</span>
-          </div>
-          <div className="d-flex align-items-center mb-3">
-            <span className="me-2">Quantity</span>
-            <Button variant="outline-secondary" size="sm" onClick={handleDecrease} disabled={quantity === 1}>-</Button>
-            <span className="mx-2">{quantity}</span>
-            <Button variant="outline-secondary" size="sm" onClick={handleIncrease}>+</Button>
-          </div>
-          <Button variant="dark" className="w-100 mb-3" onClick={handleAddToCart}>
-            <i className="bi bi-cart"></i> Add to Cart - ${(product.price * quantity).toFixed(2)}
-          </Button>
-          <div className="d-flex gap-4">
-            <span><i className="bi bi-truck"></i> {product.features[0]}</span>
-            <span><i className="bi bi-shield-check"></i> {product.features[1]}</span>
-            <span><i className="bi bi-arrow-counterclockwise"></i> {product.features[2]}</span>
-          </div>
-        </div>
-      </div>
+        )}
+      </Container>
+
      
-  <ToastContainer position="fixed" className="p-3" style={{ zIndex: 9999, bottom: -120, end: 0, right: 0 }}>
-        <Toast show={showToast} onClose={() => setShowToast(false)} bg="white" delay={2500} autohide>
-          <Toast.Body style={{ color: '#111', fontWeight: 500 }}>
-            <span style={{ color: 'green', marginRight: 8 }}>&#10003;</span> {toastMsg}
+      <ToastContainer position="bottom-end" className="p-3" style={{ marginTop: "30px" }}>
+        <Toast
+          onClose={() => setShowToast(false)}
+          show={showToast}
+          delay={3000}
+          autohide
+          bg="success"
+        >
+          
+          <Toast.Body>
+             1 {product.name}(s) added to cart!
           </Toast.Body>
         </Toast>
       </ToastContainer>
-      <div className="mt-5">
-        <h4>Related Products</h4>
-        <div className="card" style={{width:'16rem'}}>
-          <img src={product.related.image} className="card-img-top" alt={product.related.name} />
-          <div className="card-body">
-            <h5 className="card-title">{product.related.name}</h5>
-            <p className="card-text">{product.related.description}</p>
-            <div className="d-flex align-items-center justify-content-between">
-              <span className="text-primary fw-bold">${product.related.price.toFixed(2)}</span>
-              <Button
-                variant="outline-dark"
-                as={Link}
-                to={`/product/${encodeURIComponent(product.related.name)}`}
-              >
-                View
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
+
+      <Footer />
     </>
   );
 }
