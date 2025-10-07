@@ -1,21 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./../Styles/products.css";
 import { Toast, ToastContainer } from "react-bootstrap";
+import { db } from "../Firebase/firebase"; 
+import { collection, getDocs } from "firebase/firestore";
+import "./../Styles/products.css";
 
 function Products() {
   const navigate = useNavigate();
-  const [Cart, setCart] = useState([]);
+  const [cart, setCart] = useState([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
+
+  // ✅ Firestore state
+  const [products, setProducts] = useState([]);
+
+  // 🔹 Fetch products from Firestore
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productsRef = collection(db, "products");
+        const snapshot = await getDocs(productsRef);
+        const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+        setProducts(data);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   const handleAddToCart = (productName) => {
     setCart((prev) => [...prev, productName]);
     setToastMsg(`${productName} added to cart!`);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 2500);
   };
+
   return (
     <>
+      {/* Header */}
       <div
         className="text-center my-5 px-3"
         style={{ fontFamily: "Inter, sans-serif", paddingTop: "100px" }}
@@ -26,42 +51,56 @@ function Products() {
         </p>
       </div>
 
+      {/* 🔹 Featured Products */}
       <div className="container py-5">
         <div className="row g-4">
-          {/* Card 1 */}
-          <div className="col-md-4">
-            <div className="card shadow-sm h-100 product-card">
-              <div className="image-wrapper">
-              <img
-                src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&h=500&fit=crop"
-                className="card-img-top zoom-img"
-                alt="Headphones"
-              />
-              </div>
-              <div className="card-body">
-                <h5 className="card-title d-flex justify-content-between align-items-center">
-                  Wireless Headphones{" "}
-                  <span className="badge bg-secondary">Electronics</span>
-                </h5>
-                <p className="card-text">
-                  Premium quality wireless headphones with noise cancellation and
-                  30-hour battery life.
-                </p>
+          {products.length > 0 ? (
+            products.slice(0, 3).map((p) => ( // ✅ only first 3 as featured
+              <div className="col-md-4" key={p.id}>
+                <div className="card shadow-sm h-100 product-card">
+                  <div className="image-wrapper">
+                    <img
+                      src={p.imageUrl}
+                      className="card-img-top zoom-img"
+                      alt={p.name}
+                    />
+                  </div>
+                  <div className="card-body">
+                    <h5 className="card-title d-flex justify-content-between align-items-center">
+                      {p.name}{" "}
+                      <span className="badge bg-secondary">{p.category}</span>
+                    </h5>
+                    <p className="card-text">{p.description}</p>
 
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <h4 className="text-primary">$99.99</h4>
-                  <div className="d-flex gap-2">
-                    <button className="btn btn-outline-primary btn-sm" onClick={() => navigate('/product/Wireless Headphones')}>View</button>
-                    <button className="btn btn-dark btn-sm" onClick={() => handleAddToCart("Wireless Headphones") }>
-                      <i className="bi bi-cart"></i> Add
-                    </button>
+                    <div className="d-flex justify-content-between align-items-center mb-2">
+                      <h4 className="text-primary">${p.price}</h4>
+                      <div className="d-flex gap-2">
+                        <button
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={() => navigate(`/product/${p.id}`)}
+                        >
+                          View
+                        </button>
+                        <button
+                          className="btn btn-dark btn-sm"
+                          onClick={() => handleAddToCart(p.name)}
+                        >
+                          <i className="bi bi-cart"></i> Add
+                        </button>
+                      </div>
+                    </div>
+
+                    {p.rating && (
+                      <div className="mb-2 text-warning">
+                        {"★".repeat(Math.floor(p.rating))}
+                        {"☆".repeat(5 - Math.floor(p.rating))}
+                        <span className="text-muted"> ({p.rating})</span>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                <div className="mb-2 text-warning">
-                  ★★★★☆ <span className="text-muted">(4.5)</span>
-                </div>
               </div>
+<<<<<<< HEAD
             </div>
           </div>
 
@@ -125,19 +164,16 @@ function Products() {
           <button className="btn btn-dark btn-sm" onClick={() => handleAddToCart("Yoga Mat") }>
             <i className="bi bi-cart"></i> Add
           </button>
+=======
+            ))
+          ) : (
+            <p className="text-center">Loading products...</p>
+          )}
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
         </div>
-      </div>
 
-      <div className="mb-2 text-warning">
-        ★★★★☆ <span className="text-muted">(4.3)</span>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-        </div>
-        <div className="text-center mt-5" >
+        {/* View All Button */}
+        <div className="text-center mt-5">
           <button
             id="view-btn"
             className="btn btn-success"
@@ -145,17 +181,28 @@ function Products() {
               backgroundColor: "#ffffffff",
               color: "black",
               borderColor: "#b3b1b1ff",
-              fontWeight: "500"
+              fontWeight: "500",
             }}
-            onClick={() => navigate('/products')}
+            onClick={() => navigate("/products")}
           >
             View All Products
           </button>
         </div>
       </div>
-      
-      <ToastContainer position="fixed" className="p-3" style={{ zIndex: 9999, bottom: 0, end: 0, right: 0 }}>
-        <Toast show={showToast} onClose={() => setShowToast(false)} bg="dark" delay={2500} autohide>
+
+      {/* Toast */}
+      <ToastContainer
+        position="fixed"
+        className="p-3"
+        style={{ zIndex: 9999, bottom: 0, end: 0, right: 0 }}
+      >
+        <Toast
+          show={showToast}
+          onClose={() => setShowToast(false)}
+          bg="dark"
+          delay={2500}
+          autohide
+        >
           <Toast.Body className="text-white">{toastMsg}</Toast.Body>
         </Toast>
       </ToastContainer>

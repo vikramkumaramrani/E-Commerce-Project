@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Card, Button, Badge } from "react-bootstrap";
+<<<<<<< HEAD
 import { useLocation, Link } from "react-router-dom";  
+=======
+import { Link, useLocation } from "react-router-dom";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../Firebase/firebase"; // make sure you have firebase.js set up
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "./product.css";
@@ -15,6 +21,7 @@ import watch from "../assets/images/watch.jpg";
 
 function Product() {
   const location = useLocation();
+<<<<<<< HEAD
 
 
   const allProducts = [
@@ -26,11 +33,30 @@ function Product() {
     { id: 6, name: "Watch", price: 149.99, stock: 12, category: "Fashion", image: watch, description: "Stylish analog watch with leather strap." },
   ];
 
+=======
+  const [allProducts, setAllProducts] = useState([]);
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [price, setPrice] = useState("all");
   const [sort, setSort] = useState("name");
 
+<<<<<<< HEAD
+=======
+  // 🔹 Load products from Firestore
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "products"), (snapshot) => {
+      const list = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setAllProducts(list);
+    });
+    return () => unsub();
+  }, []);
+
+  // 🔹 Category from query param (?category=fashion)
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const cat = params.get("category");
@@ -39,14 +65,18 @@ function Product() {
     }
   }, [location.search]);
 
+<<<<<<< HEAD
 
+=======
+  // 🔹 Filter + Sort Logic
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
   let filteredProducts = allProducts.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase())
+    p.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   if (category !== "all") {
     filteredProducts = filteredProducts.filter(
-      (p) => p.category.toLowerCase() === category
+      (p) => p.category?.toLowerCase() === category
     );
   }
 
@@ -86,7 +116,11 @@ function Product() {
             </Col>
           </Row>
 
+<<<<<<< HEAD
           {/* 🔍 Filter Section */}
+=======
+          {/* 🔹 Filters Row */}
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
           <Row className="g-3 align-items-center p-3 bg-white rounded shadow-sm mb-4">
             <Col xs={12} md={3}>
               <Form.Group>
@@ -146,7 +180,11 @@ function Product() {
             </Col>
           </Row>
 
+<<<<<<< HEAD
           {/* Product Count */}
+=======
+          {/* 🔹 Product Count */}
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
           <Row className="mb-2">
             <Col>
               <p className="fw-semibold mb-1 text-secondary">
@@ -155,7 +193,11 @@ function Product() {
             </Col>
           </Row>
 
+<<<<<<< HEAD
           {/* Product Cards */}
+=======
+          {/* 🔹 Product Grid */}
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
           <Row className="g-4">
             {filteredProducts.map((p) => (
               <Col key={p.id} xs={12} sm={6} md={4} lg={3}>
@@ -163,17 +205,29 @@ function Product() {
                   <div className="image-wrapper">
                     <Card.Img
                       variant="top"
+<<<<<<< HEAD
                       src={p.image}
+=======
+                      src={coffee} // 🔥 show Firestore image if available
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
                       className="zoom-img"
                       style={{ height: "200px", objectFit: "cover" }}
                     />
                   </div>
                   <Card.Body>
                     <div className="d-flex align-items-center mb-2">
-                      <Badge bg="secondary" className="me-2">{p.category}</Badge>
+                      <Badge bg="secondary" className="me-2">
+                        {p.category}
+                      </Badge>
                       <h5 className="mb-0">{p.name}</h5>
                     </div>
+<<<<<<< HEAD
                     <Card.Text>{p.description}</Card.Text>
+=======
+                    <Card.Text>
+                      {p.description || "No description available."}
+                    </Card.Text>
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
                     <div className="d-flex justify-content-between align-items-center mb-3">
                       <h4 className="text-primary mb-0">${p.price}</h4>
                       <div className="text-warning">
@@ -181,10 +235,16 @@ function Product() {
                       </div>
                     </div>
                     <div className="d-flex gap-2">
+<<<<<<< HEAD
                     
                       <Button
                         as={Link}
                         to={`/product/${p.id}`}
+=======
+                      <Button
+                        as={Link}
+                        to={`/product/${p.id}`}   // 🔹 navigate with Firestore doc id
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
                         variant="outline-primary"
                         size="sm"
                         className="flex-fill"
@@ -207,7 +267,11 @@ function Product() {
         </Container>
       </div>
       <Footer />
+<<<<<<< HEAD
     </div>
+=======
+    </>
+>>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
   );
 }
 
