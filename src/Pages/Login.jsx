@@ -10,7 +10,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 function Login() {
   const navigate = useNavigate();
 
-  // Form states
+
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");

@@ -1,24 +1,25 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";  // 🔹 Firestore import
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";   
+import { getStorage } from "firebase/storage"; 
+
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDNK-5ZHw2tGVLjfnwhoVQDvnA8e48Iltw",
-  authDomain: "e-commerce-project-2f93d.firebaseapp.com",
-  projectId: "e-commerce-project-2f93d",
-  storageBucket: "e-commerce-project-2f93d.firebasestorage.app",
-  messagingSenderId: "460051385010",
-  appId: "1:460051385010:web:18a9e363a2e5d5f3f797ab",
-  measurementId: "G-MCGB4NB127",
+  apiKey: "AIzaSyC69YVZy2KB2hjk8ZBs_fPpDu-RhSkF1Sg",
+  authDomain: "e-commerce-project-1e70a.firebaseapp.com",
+  projectId: "e-commerce-project-1e70a",
+  storageBucket: "e-commerce-project-1e70a.firebasestorage.app",
+  messagingSenderId: "228762628507",
+  appId: "1:228762628507:web:3aff1826fbd3f64ab6313e",
+  measurementId: "G-348WS1CB3M"
 };
 
-// Initialize Firebase
+
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// Auth instance
-export const auth = getAuth(app);
 
-// 🔹 Firestore instance
+export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app); 

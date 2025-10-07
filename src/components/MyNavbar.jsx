@@ -26,7 +26,7 @@ function MyNavbar() {
       id="navbar"
     >
       <Container fluid>
-        {/* Logo */}
+   
         <Navbar.Brand as={Link} to="/" className="d-flex align-items-center px-3">
           <i className="bi bi-box-seam fs-4 text-primary me-2"></i>
           <span className="fw-bold text-primary">E-Commerce</span>
