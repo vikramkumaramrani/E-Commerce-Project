@@ -20,10 +20,9 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
 
-<<<<<<< HEAD
-=======
+
 //  Export Auth instance (named export)
->>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app); 

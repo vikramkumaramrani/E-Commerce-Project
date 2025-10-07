@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
@@ -43,7 +42,7 @@ function ProductDetail() {
   const related = allProducts.filter(
     (p) => p.category === product.category && p.id !== product.id
   );
-=======
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button, Toast, ToastContainer } from "react-bootstrap";
@@ -94,13 +93,12 @@ function ProductDetail() {
     };
     fetchProduct();
   }, [productId]);
->>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
+
 
   const handleAddToCart = () => {
-    // yahan future me cart logic add kar sakte ho
+    
     setShowToast(true);
   };
-<<<<<<< HEAD
 
   return (
     <>
@@ -118,7 +116,7 @@ function ProductDetail() {
           <Breadcrumb.Item active>{product.name}</Breadcrumb.Item>
         </Breadcrumb>
 
-        {/* ✅ Product Detail Section */}
+       
         <Row className="gy-4 align-items-center">
           <Col xs={12} md={6}>
             <img
@@ -158,7 +156,7 @@ function ProductDetail() {
           </Col>
         </Row>
 
-        {/* ✅ Related Products Section */}
+       
         {related.length > 0 && (
           <div className="mt-5">
             <h4>Related Products</h4>
@@ -212,7 +210,7 @@ function ProductDetail() {
       </ToastContainer>
 
       <Footer />
-=======
+
 
   const handleDecrease = () => setQuantity((q) => Math.max(1, q - 1));
   const handleIncrease = () => setQuantity((q) => q + 1);
@@ -223,7 +221,7 @@ function ProductDetail() {
     <>
       <MyNavbar />
       <div className="container py-5" style={{ background: "#f7f9fa", minHeight: "100vh" }}>
-        {/* Breadcrumbs */}
+      
         <nav aria-label="breadcrumb" className="mb-2">
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
@@ -252,7 +250,7 @@ function ProductDetail() {
           <span style={{ fontWeight: 600 }}>Back to Products</span>
         </Button>
 
-        {/* Product Details */}
+      
         <div className="row">
           <div className="col-md-6">
             <img
@@ -285,7 +283,7 @@ function ProductDetail() {
               </div>
             )}
 
-            {/* Quantity + Add to Cart */}
+            
             <div className="d-flex align-items-center mb-3">
               <span className="me-2">Quantity</span>
               <Button variant="outline-secondary" size="sm" onClick={handleDecrease} disabled={quantity === 1}>
@@ -303,7 +301,7 @@ function ProductDetail() {
           </div>
         </div>
 
-        {/* Similar Products */}
+        
         {similarProducts.length > 0 && (
           <div className="mt-5">
             <h4>Similar Products</h4>
@@ -345,7 +343,6 @@ function ProductDetail() {
           </Toast>
         </ToastContainer>
       </div>
->>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
     </>
   );
 }

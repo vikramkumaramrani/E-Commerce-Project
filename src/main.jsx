@@ -31,13 +31,12 @@ createRoot(document.getElementById("root")).render(
           <Route path="/productManage" element={<ProductManage />} />
           <Route path="/orderManage" element={<OrderManage />} />
           <Route path="/home" element={<Home />} />
-<<<<<<< HEAD
           <Route path="/product/:id" element={<ProductDetail />} />
 
-=======
+
           {/* <Route path="/product/:productName" element={<ProductDetail />} /> */}
           <Route path="/product/:productId" element={<ProductDetail />} />
->>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
+
         </Routes>
       </BrowserRouter>
     </MyProvider>
