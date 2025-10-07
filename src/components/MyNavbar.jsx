@@ -71,7 +71,9 @@ function MyNavbar() {
               >
                 Products
               </Nav.Link>
-              <FiUser className="ms-1" size={22} />
+              {location.pathname === "/dashboard" && (
+                <FiUser className="ms-1" size={22} />
+              )}
             </div>
 
             {/* Login / Signup hide karne ka logic */}

@@ -1,54 +1,9 @@
-import React, { useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import {
-  Container,
-  Row,
-  Col,
-  Button,
-  Breadcrumb,
-  Card,
-  Toast,
-  ToastContainer,
-} from "react-bootstrap";
-// import MyNavbar from "../components/MyNavbar";
-import Footer from "../components/Footer";
-
-import coffee from "../assets/images/coffee.jpg";
-import laptop from "../assets/images/laptop.jpg";
-import shoes from "../assets/images/shoes.jpg";
-import headphones from "../assets/images/headphone.jpg";
-import tshirt from "../assets/images/tshirt.jpg";
-import watch from "../assets/images/watch.jpg";
-
-function ProductDetail() {
-  const { id } = useParams();
-  const [showToast, setShowToast] = useState(false);
-
-  const allProducts = [
-    { id: 1, name: "Coffee Maker", price: 129.99, stock: 25, category: "Home", image: coffee, description: "Programmable coffee maker with built-in grinder and thermal carafe." },
-    { id: 2, name: "Laptop", price: 899.99, stock: 10, category: "Electronics", image: laptop, description: "High-performance laptop with 16GB RAM and SSD storage." },
-    { id: 3, name: "Shoes", price: 59.99, stock: 30, category: "Fashion", image: shoes, description: "Comfortable running shoes with breathable fabric." },
-    { id: 4, name: "Headphones", price: 199.99, stock: 20, category: "Electronics", image: headphones, description: "Noise-cancelling wireless headphones with 30hr battery life." },
-    { id: 5, name: "T-Shirt", price: 25.0, stock: 60, category: "Fashion", image: tshirt, description: "Soft cotton t-shirt available in multiple colors." },
-    { id: 6, name: "Watch", price: 149.99, stock: 12, category: "Fashion", image: watch, description: "Stylish analog watch with leather strap." },
-  ];
-
-  const product = allProducts.find((p) => p.id === parseInt(id));
-
-  if (!product) {
-    return <h2 className="text-center py-5">Product not found!</h2>;
-  }
-
-  const related = allProducts.filter(
-    (p) => p.category === product.category && p.id !== product.id
-  );
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button, Toast, ToastContainer } from "react-bootstrap";
 import { BsArrowLeft } from "react-icons/bs";
-import MyNavbar from "./MyNavbar.jsx";
-import { db } from "../Firebase/firebase.js";
+import MyNavbar from "./MyNavbar.jsx"; // Assuming this component exists
+import { db } from "../Firebase/firebase.js"; // Assuming db is correctly imported and configured
 import { doc, getDoc, collection, query, where, limit, getDocs } from "firebase/firestore";
 
 function ProductDetail() {
@@ -64,9 +19,14 @@ function ProductDetail() {
   // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
+      // Reset states on productId change
+      setProduct(null);
+      setSimilarProducts([]);
+
       try {
         const docRef = doc(db, "products", productId);
         const snap = await getDoc(docRef);
+
         if (snap.exists()) {
           const productData = { id: snap.id, ...snap.data() };
           setProduct(productData);
@@ -76,152 +36,49 @@ function ProductDetail() {
             const q = query(
               collection(db, "products"),
               where("category", "==", productData.category),
-              limit(5) // 1 current + 4 similar
+              // Filter out the current product ID on the client side
+              limit(5)
             );
             const querySnap = await getDocs(q);
             const allProducts = querySnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-            // Exclude current product
+            
+            // Exclude current product and take up to 4 similar ones
             const filtered = allProducts.filter((p) => p.id !== productData.id).slice(0, 4);
             setSimilarProducts(filtered);
           }
         } else {
-          console.warn("Product not found in Firestore");
+          console.warn(`Product with ID ${productId} not found in Firestore`);
+          setProduct(false); // Signal that product was searched for but not found
         }
       } catch (error) {
         console.error("Error fetching product:", error);
+        setProduct(false); // Signal an error occurred
       }
     };
     fetchProduct();
   }, [productId]);
 
-
-  const handleAddToCart = () => {
-    
-    setShowToast(true);
-  };
-
-  return (
-    <>
-      {/* <MyNavbar /> */}
-
-      <Container className="py-4">
-       
-        <Breadcrumb className="mt-2" style={{ ["--bs-breadcrumb-divider"]: "'>'" }}>
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/" }}>
-            Home
-          </Breadcrumb.Item>
-          <Breadcrumb.Item linkAs={Link} linkProps={{ to: "/products" }}>
-            Products
-          </Breadcrumb.Item>
-          <Breadcrumb.Item active>{product.name}</Breadcrumb.Item>
-        </Breadcrumb>
-
-       
-        <Row className="gy-4 align-items-center">
-          <Col xs={12} md={6}>
-            <img
-              src={product.image}
-              alt={product.name}
-              className="img-fluid rounded shadow"
-              style={{ width: "100%", height: "550px", objectFit: "cover" }}
-            />
-          </Col>
-
-          <Col xs={12} md={6}>
-            <h2>{product.name}</h2>
-            <div className="mb-2 text-warning">
-              ★★★★☆ <span className="text-muted">(4.5 - 123 reviews)</span>
-            </div>
-            <h3 className="text-primary">${product.price}</h3>
-            <p className="text-muted">{product.description}</p>
-            <p>
-              <strong className="text-success">{product.stock} in stock</strong>
-            </p>
-
-            <div className="d-flex flex-wrap gap-2 mb-3">
-              <Button
-                variant="dark"
-                className="flex-fill"
-                onClick={handleAddToCart}
-              >
-                Add to Cart - ${product.price}
-              </Button>
-            </div>
-
-            <div className="d-flex flex-wrap gap-3 text-muted small">
-              <span>🚚 Free shipping over $50</span>
-              <span>🛡️ 1 year warranty</span>
-              <span>↩️ 30-day returns</span>
-            </div>
-          </Col>
-        </Row>
-
-       
-        {related.length > 0 && (
-          <div className="mt-5">
-            <h4>Related Products</h4>
-            <Row className="g-4 mt-2">
-              {related.map((r) => (
-                <Col key={r.id} xs={12} sm={6} md={4} lg={3}>
-                  <Card className="h-100 shadow-sm">
-                    <Card.Img
-                      variant="top"
-                      src={r.image}
-                      alt={r.name}
-                      style={{ height: "200px", width: "100%", objectFit: "cover" }}
-                    />
-                    <Card.Body>
-                      <Card.Title as="h6">{r.name}</Card.Title>
-                      <Card.Text className="text-primary fw-bold">
-                        ${r.price}
-                      </Card.Text>
-                      <Link to={`/product/${r.id}`}>
-                        <Button
-                          size="sm"
-                          variant="outline-primary"
-                          className="w-100"
-                        >
-                          View
-                        </Button>
-                      </Link>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </div>
-        )}
-      </Container>
-
-     
-      <ToastContainer position="bottom-end" className="p-3" style={{ marginTop: "30px" }}>
-        <Toast
-          onClose={() => setShowToast(false)}
-          show={showToast}
-          delay={3000}
-          autohide
-          bg="success"
-        >
-          
-          <Toast.Body>
-             1 {product.name}(s) added to cart!
-          </Toast.Body>
-        </Toast>
-      </ToastContainer>
-
-      <Footer />
-
-
   const handleDecrease = () => setQuantity((q) => Math.max(1, q - 1));
   const handleIncrease = () => setQuantity((q) => q + 1);
 
-  if (!product) return <div className="text-center py-5">Loading...</div>;
+  const handleAddToCart = () => {
+    // In a real app, you'd dispatch an action or update a global cart state here
+    setToastMsg(`${quantity} ${product.name}(s) added to cart!`);
+    setShowToast(true);
+    // Optionally, reset quantity to 1 after adding to cart
+    setQuantity(1); 
+  };
+  
+  // Handle Loading and Not Found states
+  if (product === null) return <div className="text-center py-5">Loading...</div>;
+  if (product === false) return <div className="text-center py-5">Product not found!</div>;
 
   return (
     <>
       <MyNavbar />
       <div className="container py-5" style={{ background: "#f7f9fa", minHeight: "100vh" }}>
       
+        {/* Breadcrumb Navigation */}
         <nav aria-label="breadcrumb" className="mb-2">
           <ol className="breadcrumb">
             <li className="breadcrumb-item">
@@ -250,18 +107,21 @@ function ProductDetail() {
           <span style={{ fontWeight: 600 }}>Back to Products</span>
         </Button>
 
-      
+        {/* Product Details Row */}
         <div className="row">
           <div className="col-md-6">
             <img
               src={product.image}
               alt={product.name}
               className="img-fluid rounded"
-              style={{ maxHeight: "400px", objectFit: "contain" }}
+              // Using a fixed max-height and contain object-fit for good presentation
+              style={{ maxHeight: "400px", objectFit: "contain" }} 
             />
           </div>
           <div className="col-md-6">
-            <span className="badge bg-light text-dark mb-2">{product.category || "General"}</span>
+            {product.category && (
+                <span className="badge bg-light text-dark mb-2">{product.category}</span>
+            )}
             <h2>{product.name}</h2>
             {product.rating && (
               <div className="mb-2">
@@ -277,31 +137,50 @@ function ProductDetail() {
             <h3 className="text-primary mb-3">${Number(product.price).toFixed(2)}</h3>
             <h5>Description</h5>
             <p>{product.description}</p>
-            {product.stock && (
+            {product.stock > 0 ? (
               <div className="mb-2">
                 <span className="badge bg-success">{product.stock} in stock</span>
               </div>
+            ) : (
+                <div className="mb-2">
+                    <span className="badge bg-danger">Out of stock</span>
+                </div>
             )}
 
-            
+            {/* Quantity Selector */}
             <div className="d-flex align-items-center mb-3">
               <span className="me-2">Quantity</span>
-              <Button variant="outline-secondary" size="sm" onClick={handleDecrease} disabled={quantity === 1}>
+              <Button 
+                variant="outline-secondary" 
+                size="sm" 
+                onClick={handleDecrease} 
+                disabled={quantity === 1}
+              >
                 -
               </Button>
               <span className="mx-2">{quantity}</span>
-              <Button variant="outline-secondary" size="sm" onClick={handleIncrease}>
+              <Button 
+                variant="outline-secondary" 
+                size="sm" 
+                onClick={handleIncrease}
+                disabled={product.stock && quantity >= product.stock} // Disable if max stock reached
+              >
                 +
               </Button>
             </div>
 
-            <Button variant="dark" className="w-100 mb-3" onClick={handleAddToCart}>
-              <i className="bi bi-cart"></i> Add to Cart - ${(product.price * quantity).toFixed(2)}
+            <Button 
+                variant="dark" 
+                className="w-100 mb-3" 
+                onClick={handleAddToCart}
+                disabled={product.stock <= 0} // Disable if out of stock
+            >
+              <i className="bi bi-cart"></i> Add to Cart - ${Number(product.price * quantity).toFixed(2)}
             </Button>
           </div>
         </div>
 
-        
+        {/* Similar Products */}
         {similarProducts.length > 0 && (
           <div className="mt-5">
             <h4>Similar Products</h4>
@@ -335,10 +214,20 @@ function ProductDetail() {
         )}
 
         {/* Toast Notification */}
-        <ToastContainer position="fixed" className="p-3" style={{ zIndex: 9999, bottom: -120, end: 0, right: 0 }}>
-          <Toast show={showToast} onClose={() => setShowToast(false)} bg="white" delay={2500} autohide>
-            <Toast.Body style={{ color: "#111", fontWeight: 500 }}>
-              <span style={{ color: "green", marginRight: 8 }}>&#10003;</span> {toastMsg}
+        <ToastContainer 
+            position="bottom-end" 
+            className="p-3" 
+            style={{ zIndex: 9999 }}
+        >
+          <Toast 
+            show={showToast} 
+            onClose={() => setShowToast(false)} 
+            bg="success" 
+            delay={3000} 
+            autohide
+          >
+            <Toast.Body style={{ color: "#fff", fontWeight: 500 }}>
+              {toastMsg}
             </Toast.Body>
           </Toast>
         </ToastContainer>

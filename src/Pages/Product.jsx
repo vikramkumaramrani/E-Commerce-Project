@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Card, Button, Badge } from "react-bootstrap";
-<<<<<<< HEAD
-import { useLocation, Link } from "react-router-dom";  
-=======
-import { Link, useLocation } from "react-router-dom";
+// Duplicate import removed, kept a single line for Link and useLocation
+import { Link, useLocation } from "react-router-dom"; 
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../Firebase/firebase"; // make sure you have firebase.js set up
->>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
+import { db } from "../Firebase/firebase";
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "./product.css";
-
-
-import coffee from "../assets/images/coffee.jpg";
+// Static images are kept as fallback/placeholders, but the Firebase image URL is preferred.
+import coffee from "../assets/images/coffee.jpg"; 
 import laptop from "../assets/images/laptop.jpg";
 import shoes from "../assets/images/shoes.jpg";
 import headphones from "../assets/images/headphone.jpg";
@@ -22,84 +18,120 @@ import watch from "../assets/images/watch.jpg";
 function Product() {
   const location = useLocation();
 
-
-
-  const allProducts = [
-    { id: 1, name: "Coffee Maker", price: 129.99, stock: 45, category: "Home", image: coffee, description: "Programmable coffee maker with grinder and thermal carafe." },
-    { id: 2, name: "Laptop", price: 899.99, stock: 10, category: "Electronics", image: laptop, description: "High-performance laptop with 16GB RAM and SSD storage." },
-    { id: 3, name: "Shoes", price: 59.99, stock: 30, category: "Fashion", image: shoes, description: "Comfortable running shoes with breathable fabric." },
-    { id: 4, name: "Headphones", price: 199.99, stock: 20, category: "Electronics", image: headphones, description: "Noise-cancelling wireless headphones with 30hr battery life." },
-    { id: 5, name: "T-Shirt", price: 25.0, stock: 60, category: "Fashion", image: tshirt, description: "Soft cotton t-shirt available in multiple colors." },
-    { id: 6, name: "Watch", price: 149.99, stock: 12, category: "Fashion", image: watch, description: "Stylish analog watch with leather strap." },
-  ];
-
+  // ❌ Removed the hardcoded 'allProducts' array as it conflicts with the state.
+  // The logic now relies only on the data fetched from Firebase.
 
   const [allProducts, setAllProducts] = useState([]);
-
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [price, setPrice] = useState("all");
   const [sort, setSort] = useState("name");
 
- 
+  // ✅ useEffect to fetch products from Firestore using a real-time listener (onSnapshot)
   useEffect(() => {
+    // Check if db object is available before attempting connection
+    if (!db) {
+        console.error("Firebase db is not initialized.");
+        return;
+    }
+
     const unsub = onSnapshot(collection(db, "products"), (snapshot) => {
-      const list = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const list = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          // Ensure price is a number for sorting, default to 0 if missing/invalid
+          price: Number(data.price) || 0, 
+        };
+      });
       setAllProducts(list);
+    }, (error) => {
+        console.error("Error fetching Firestore products:", error);
     });
+    
+    // Cleanup function to unsubscribe from the listener
     return () => unsub();
   }, []);
 
-
+  // ✅ useEffect to read category from URL search parameters
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const cat = params.get("category");
-    if (cat && ["electronics", "fashion", "home"].includes(cat.toLowerCase())) {
-      setCategory(cat.toLowerCase());
+    // Ensure category is not null/empty and is a valid category (using lowercase for comparison)
+    if (cat) {
+        // You can refine this list based on your actual categories in Firestore
+        setCategory(cat.toLowerCase()); 
     }
   }, [location.search]);
 
 
+  // 🔹 Filtering Logic
+  let filteredProducts = allProducts;
 
-  let filteredProducts = allProducts.filter((p) =>
-    p.name?.toLowerCase().includes(search.toLowerCase())
-  );
+  // Filter by Search
+  if (search) {
+    filteredProducts = filteredProducts.filter((p) =>
+      p.name?.toLowerCase().includes(search.toLowerCase()) || 
+      p.description?.toLowerCase().includes(search.toLowerCase()) ||
+      p.category?.toLowerCase().includes(search.toLowerCase())
+    );
+  }
 
+  // Filter by Category
   if (category !== "all") {
     filteredProducts = filteredProducts.filter(
       (p) => p.category?.toLowerCase() === category
     );
   }
 
+  // Filter by Price Range
   if (price !== "all") {
     filteredProducts = filteredProducts.filter((p) => {
-      if (price === "0-50") return p.price <= 50;
-      if (price === "50-100") return p.price > 50 && p.price <= 100;
-      if (price === "100+") return p.price > 100;
+      const pPrice = p.price || 0; // Use 0 if price is missing/invalid
+      if (price === "0-50") return pPrice <= 50;
+      if (price === "50-100") return pPrice > 50 && pPrice <= 100;
+      if (price === "100+") return pPrice > 100;
       return true;
     });
   }
 
-  if (sort === "name") {
-    filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-  } else if (sort === "name-desc") {
-    filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
-  } else if (sort === "price-low") {
-    filteredProducts.sort((a, b) => a.price - b.price);
-  } else if (sort === "price-high") {
-    filteredProducts.sort((a, b) => b.price - a.price);
-  }
+  // 🔹 Sorting Logic
+  const sortedProducts = [...filteredProducts].sort((a, b) => { // Use a copy of the array for sorting
+    if (sort === "name") {
+      return (a.name || "").localeCompare(b.name || "");
+    } else if (sort === "name-desc") {
+      return (b.name || "").localeCompare(a.name || "");
+    } else if (sort === "price-low") {
+      return (a.price || 0) - (b.price || 0);
+    } else if (sort === "price-high") {
+      return (b.price || 0) - (a.price || 0);
+    }
+    return 0;
+  });
+
+  // Function to get static image based on product image URL
+  const getStaticImage = (imageUrl) => {
+    if (typeof imageUrl === 'string' && imageUrl.startsWith('data:image')) {
+        return imageUrl; // Keep base64 images
+    }
+    // Simple way to map common image names if Firebase provides them
+    if (imageUrl?.includes('coffee')) return coffee;
+    if (imageUrl?.includes('laptop')) return laptop;
+    if (imageUrl?.includes('shoes')) return shoes;
+    if (imageUrl?.includes('headphones')) return headphones;
+    if (imageUrl?.includes('tshirt')) return tshirt;
+    if (imageUrl?.includes('watch')) return watch;
+
+    return imageUrl; // Fallback to the image URL from Firestore (if it's a valid remote URL)
+  };
+
 
   return (
     <div>
       <MyNavbar />
 
-     
-
-      <div style={{ backgroundColor: "#f7f9fa", minHeight: "100vh" }}>
+      <div style={{ backgroundColor: "#f7f9fa", minHeight: "100vh", paddingTop: '80px' }}> {/* Added paddingTop to account for MyNavbar */}
         <Container className="py-4">
           <Row className="mb-3">
             <Col>
@@ -110,8 +142,7 @@ function Product() {
             </Col>
           </Row>
 
-
-
+          {/* 🔹 Filter and Sort Controls */}
           <Row className="g-3 align-items-center p-3 bg-white rounded shadow-sm mb-4">
             <Col xs={12} md={3}>
               <Form.Group>
@@ -136,6 +167,7 @@ function Product() {
                   <option value="electronics">Electronics</option>
                   <option value="fashion">Fashion</option>
                   <option value="home">Home</option>
+                  {/* You might want to dynamically load other categories from Firestore data */}
                 </Form.Select>
               </Form.Group>
             </Col>
@@ -171,30 +203,25 @@ function Product() {
             </Col>
           </Row>
 
-
           {/* 🔹 Product Count */}
->>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
           <Row className="mb-2">
             <Col>
               <p className="fw-semibold mb-1 text-secondary">
-                Showing {filteredProducts.length} of {allProducts.length} products
+                Showing {sortedProducts.length} of {allProducts.length} products
               </p>
             </Col>
           </Row>
 
-
+          {/* 🔹 Product Grid */}
           <Row className="g-4">
-            {filteredProducts.map((p) => (
+            {sortedProducts.map((p) => (
               <Col key={p.id} xs={12} sm={6} md={4} lg={3}>
                 <Card className="shadow-sm h-100 product-card">
                   <div className="image-wrapper">
                     <Card.Img
                       variant="top"
-
-                      src={p.image}
-
-                      src={coffee} 
-
+                      // Use the image URL from Firestore data, falling back to static imports if needed
+                      src={getStaticImage(p.image)} 
                       className="zoom-img"
                       style={{ height: "200px", objectFit: "cover" }}
                     />
@@ -202,61 +229,61 @@ function Product() {
                   <Card.Body>
                     <div className="d-flex align-items-center mb-2">
                       <Badge bg="secondary" className="me-2">
-                        {p.category}
+                        {p.category || 'N/A'}
                       </Badge>
-                      <h5 className="mb-0">{p.name}</h5>
+                      <h5 className="mb-0 fw-bold" style={{ fontSize: '1.1rem'}}>{p.name || 'Untitled Product'}</h5>
                     </div>
 
-                    <Card.Text>{p.description}</Card.Text>
-
-                    <Card.Text>
+                    <Card.Text style={{ fontSize: '0.9rem', color: '#6c757d' }}>
                       {p.description || "No description available."}
                     </Card.Text>
 
-                    <div className="d-flex justify-content-between align-items-center mb-3">
-                      <h4 className="text-primary mb-0">${p.price}</h4>
+                    <div className="d-flex justify-content-between align-items-center mb-3 mt-3">
+                      <h4 className="text-primary mb-0">${Number(p.price).toFixed(2)}</h4>
                       <div className="text-warning">
-                        ★★★★☆ <span className="text-muted">(4.5)</span>
+                        {/* Static rating for demonstration */}
+                        ★<span className="text-muted">(N/A)</span>
                       </div>
                     </div>
                     <div className="d-flex gap-2">
-
-                    
                       <Button
                         as={Link}
-                        to={`/product/${p.id}`}
-
-                      <Button
-                        as={Link}
-                        to={`/product/${p.id}`}   // 🔹 navigate with Firestore doc id
-
+                        to={`/product/${p.id}`} // Navigate using Firestore doc id
                         variant="outline-primary"
                         size="sm"
-                        className="flex-fill"
+                        className="flex-fill fw-semibold"
                       >
                         View Details
                       </Button>
 
-                      <Button variant="dark" size="sm" className="flex-fill">
-                        <i className="bi bi-cart"></i> Add to Cart
+                      <Button variant="dark" size="sm" className="flex-fill fw-semibold">
+                        <i className="bi bi-cart me-1"></i> Add to Cart
                       </Button>
                     </div>
-                    <p className="text-center mt-2 mb-0 text-muted">
-                      {p.stock} in stock
+                    <p className="text-center mt-2 mb-0 text-muted" style={{ fontSize: '0.8rem'}}>
+                      {p.stock !== undefined ? `${p.stock} in stock` : 'Stock info unavailable'}
                     </p>
                   </Card.Body>
                 </Card>
               </Col>
             ))}
+
+            {/* Handle no products found */}
+            {sortedProducts.length === 0 && allProducts.length > 0 && (
+                <Col xs={12} className="text-center py-5">
+                    <p className="lead text-muted">No products match your current filters. Try adjusting your search or categories.</p>
+                </Col>
+            )}
+            {allProducts.length === 0 && (
+                 <Col xs={12} className="text-center py-5">
+                    <p className="lead text-muted">Loading products or no products available in the database.</p>
+                </Col>
+            )}
           </Row>
         </Container>
       </div>
       <Footer />
-
     </div>
-
-    </>
-
   );
 }
 

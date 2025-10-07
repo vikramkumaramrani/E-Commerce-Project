@@ -5,17 +5,11 @@ import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase
 import { db } from "../Firebase/firebase";
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
-<<<<<<< HEAD
-import { db } from "../Firebase/firebase"; 
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
-=======
-import 'bootstrap/dist/css/bootstrap.min.css';
->>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
+import 'bootstrap/dist/css/bootstrap.min.css'; // Add this for bootstrap styles
 
 const categories = ["All Categories", "Electronics", "Sports", "Home"];
 
 const ProductManage = () => {
-<<<<<<< HEAD
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All Categories");
@@ -23,6 +17,7 @@ const ProductManage = () => {
   const [editMode, setEditMode] = useState(false); 
   const [currentId, setCurrentId] = useState(null);
 
+  // Using newProduct state, as it was well-defined in the HEAD section
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
@@ -31,46 +26,65 @@ const ProductManage = () => {
     category: "",
     stock: "",
     featured: false,
+    // Note: 'inStock' field will be calculated on save
   });
 
-  
-  useEffect(() => {
-    const fetchProducts = async () => {
+  // ✅ Function to fetch products
+  const fetchProducts = async () => {
+    try {
       const querySnapshot = await getDocs(collection(db, "products"));
       const productList = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
+        // Ensure price and stock are parsed as numbers for consistent use
+        price: Number(doc.data().price),
+        stock: Number(doc.data().stock),
       }));
       setProducts(productList);
-    };
+    } catch (error) {
+        console.error("Error fetching products:", error);
+    }
+  };
+
+  // ✅ useEffect to fetch data on initial load
+  useEffect(() => {
     fetchProducts();
   }, []);
 
-  
+  // ✅ Handle product deletion
   const handleDelete = async (id) => {
-    await deleteDoc(doc(db, "products", id));
-    setProducts(products.filter((p) => p.id !== id));
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        await deleteDoc(doc(db, "products", id));
+        // Update state optimistically or re-fetch data
+        setProducts(products.filter((p) => p.id !== id));
+      } catch (error) {
+        console.error("Error deleting product:", error);
+      }
+    }
   };
 
-  
+  // ✅ Handle Edit button click (pre-fills modal)
   const handleEdit = (product) => {
     setEditMode(true);
     setCurrentId(product.id);
     setNewProduct({
-      name: product.name,
-      price: product.price,
-      desc: product.desc,
-      image: product.image,
-      category: product.category,
-      stock: product.stock,
-      featured: product.featured,
+      // Ensure numerical values are correctly passed as strings for input fields
+      name: product.name || "",
+      price: product.price?.toString() || "", 
+      desc: product.desc || "",
+      image: product.image || "",
+      category: product.category || "",
+      stock: product.stock?.toString() || "",
+      featured: product.featured || false,
     });
     setShowModal(true);
   };
 
- 
+  // ✅ Handle Add button click (resets state and shows modal)
   const handleShowModal = () => {
     setEditMode(false);
+    setCurrentId(null);
     setNewProduct({
       name: "",
       price: "",
@@ -83,12 +97,15 @@ const ProductManage = () => {
     setShowModal(true);
   };
 
+  // ✅ Handle closing modal
   const handleCloseModal = () => {
     setShowModal(false);
+    setEditMode(false);
+    setCurrentId(null);
     setNewProduct({ name: "", price: "", desc: "", image: "", category: "", stock: "", featured: false });
   };
 
-  
+  // ✅ Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     setNewProduct((prev) => ({
@@ -97,38 +114,40 @@ const ProductManage = () => {
     }));
   };
 
-  
+  // ✅ Handle form submission (Add/Update)
   const handleSaveProduct = async (e) => {
     e.preventDefault();
     try {
-      if (editMode) {
-        
-        const productRef = doc(db, "products", currentId);
-        await updateDoc(productRef, {
-          ...newProduct,
-          price: parseFloat(newProduct.price),
-          stock: parseInt(newProduct.stock),
-          inStock: parseInt(newProduct.stock) > 0,
-        });
+      // Prepare data, ensuring correct number types for Firestore
+      const productData = {
+        ...newProduct,
+        price: parseFloat(newProduct.price),
+        stock: parseInt(newProduct.stock),
+        inStock: parseInt(newProduct.stock) > 0,
+      };
 
+      if (editMode && currentId) {
+        // --- Update existing product ---
+        const productRef = doc(db, "products", currentId);
+        await updateDoc(productRef, productData);
+
+        // Update local state without re-fetching all data
         setProducts(
           products.map((p) =>
-            p.id === currentId ? { id: currentId, ...newProduct, price: parseFloat(newProduct.price), stock: parseInt(newProduct.stock), inStock: parseInt(newProduct.stock) > 0 } : p
+            p.id === currentId ? { id: currentId, ...productData } : p
           )
         );
       } else {
-        // Add new product
+        // --- Add new product ---
         const docRef = await addDoc(collection(db, "products"), {
-          ...newProduct,
-          price: parseFloat(newProduct.price),
-          stock: parseInt(newProduct.stock),
-          inStock: parseInt(newProduct.stock) > 0,
-          createdAt: new Date(),
+          ...productData,
+          createdAt: new Date(), // Optional: Add a creation timestamp
         });
 
+        // Update local state
         setProducts([
           ...products,
-          { id: docRef.id, ...newProduct, price: parseFloat(newProduct.price), stock: parseInt(newProduct.stock), inStock: parseInt(newProduct.stock) > 0 },
+          { id: docRef.id, ...productData },
         ]);
       }
 
@@ -138,18 +157,20 @@ const ProductManage = () => {
     }
   };
 
- 
-const filteredProducts = products.filter(
-  (p) =>
-    (category === "All Categories" || p.category === category) &&
-    (p.name?.toLowerCase().includes(search.toLowerCase()) ||
-     p.desc?.toLowerCase().includes(search.toLowerCase()))
-);
+  // ✅ Filter products for display
+  const filteredProducts = products.filter(
+    (p) =>
+      (category === "All Categories" || p.category === category) &&
+      (p.name?.toLowerCase().includes(search.toLowerCase()) ||
+       p.desc?.toLowerCase().includes(search.toLowerCase()))
+  );
 
 
   return (
     <div style={{ background: "#f8f9fb", minHeight: "100vh", marginTop: 85, paddingTop: 20 }}>
-      <MyNavbar />
+      {/* MyNavbar is assumed to handle the margin top */}
+      <MyNavbar /> 
+      
       <Container fluid className="py-4">
         <Row className="justify-content-center">
           <Col xs={12} md={10} lg={9}>
@@ -157,6 +178,7 @@ const filteredProducts = products.filter(
             <div className="text-secondary mb-4">Manage your product inventory</div>
 
             
+            {/* Search, Filter & Add Button Row */}
             <Row className="g-2 align-items-center mb-4">
               <Col xs={12} md={6}>
                 <InputGroup>
@@ -177,13 +199,18 @@ const filteredProducts = products.filter(
                 </Form.Select>
               </Col>
               <Col xs={12} md={2} className="text-md-end mt-3 mt-md-0">
-                <Button variant="dark" className="w-100 w-md-auto mt-2 d-flex align-items-center justify-content-center" onClick={handleShowModal}>
+                <Button 
+                  variant="dark" 
+                  className="w-100 w-md-auto d-flex align-items-center justify-content-center" 
+                  onClick={handleShowModal}
+                >
                   <FiPlus className="me-2" /> Add Product
                 </Button>
               </Col>
             </Row>
 
           
+            {/* Products Table */}
             <div className="bg-white rounded-4 shadow-sm p-0 overflow-auto">
               <div className="d-flex align-items-center gap-2 px-4 pt-4 fw-semibold" style={{ fontSize: 18 }}>
                 <FiBox style={{ fontSize: 22 }} />
@@ -205,7 +232,11 @@ const filteredProducts = products.filter(
                     <tr key={product.id}>
                       <td>
                         <div className="d-flex align-items-center gap-2">
-                          <img src={product.image} alt={product.name} style={{ width: 48, height: 48, borderRadius: 8, objectFit: "cover", border: "1px solid #eee" }} />
+                          <img 
+                            src={product.image || 'https://via.placeholder.com/48'} 
+                            alt={product.name} 
+                            style={{ width: 48, height: 48, borderRadius: 8, objectFit: "cover", border: "1px solid #eee" }} 
+                          />
                           <div>
                             <div className="fw-semibold" style={{ fontSize: 16 }}>{product.name}</div>
                             <div className="text-secondary" style={{ fontSize: 14 }}>{product.desc}</div>
@@ -213,13 +244,15 @@ const filteredProducts = products.filter(
                         </div>
                       </td>
                       <td>
-                        <Badge bg="light" text="dark" className="fw-semibold px-3 py-2 rounded-3" style={{ fontSize: 14 }}>{product.category}</Badge>
+                        <Badge bg="light" text="dark" className="fw-semibold px-3 py-2 rounded-3" style={{ fontSize: 14 }}>{product.category || 'N/A'}</Badge>
                       </td>
-                      <td className="fw-semibold">${product.price}</td>
+                      <td className="fw-semibold">${Number(product.price).toFixed(2)}</td>
                       <td className="fw-semibold">{product.stock}</td>
                       <td>
+                        {/* Check for featured property which is a boolean */}
                         {product.featured && <Badge bg="dark" className="me-1">Featured</Badge>}
-                        {product.inStock ? <Badge bg="success">In Stock</Badge> : <Badge bg="danger">Out of Stock</Badge>}
+                        {/* Check for inStock property, or calculate based on stock */}
+                        {product.inStock || (product.stock > 0) ? <Badge bg="success">In Stock</Badge> : <Badge bg="danger">Out of Stock</Badge>}
                       </td>
                       <td>
                         <Button variant="light" className="me-2 p-2" onClick={() => handleEdit(product)}><FiEdit2 /></Button>
@@ -229,12 +262,18 @@ const filteredProducts = products.filter(
                   ))}
                 </tbody>
               </Table>
+              {filteredProducts.length === 0 && (
+                  <div className="text-center text-muted py-4">
+                      No products found.
+                  </div>
+              )}
             </div>
           </Col>
         </Row>
       </Container>
 
       
+      {/* Product Add/Edit Modal */}
       <Modal show={showModal} onHide={handleCloseModal} centered size="lg">
         <Modal.Body style={{ padding: 32 }}>
           <div className="d-flex justify-content-between align-items-start mb-2">
@@ -244,7 +283,8 @@ const filteredProducts = products.filter(
                 {editMode ? "Update product details" : "Create a new product for your store"}
               </div>
             </div>
-            <Button variant="link" onClick={handleCloseModal} style={{ fontSize: 22, color: '#222', textDecoration: 'none' }}>&times;</Button>
+            {/* Added style to prevent X button overlapping title/subtitle */}
+            <Button variant="link" onClick={handleCloseModal} style={{ fontSize: 22, color: '#222', textDecoration: 'none', marginTop: -8, marginRight: -8 }}>&times;</Button>
           </div>
           <Form onSubmit={handleSaveProduct}>
             <Row className="g-3">
@@ -254,7 +294,7 @@ const filteredProducts = products.filter(
               </Col>
               <Col xs={12} md={6}>
                 <Form.Label className="fw-semibold">Price *</Form.Label>
-                <Form.Control name="price" type="number" min="0" value={newProduct.price} onChange={handleInputChange} required />
+                <Form.Control name="price" type="number" step="0.01" min="0" value={newProduct.price} onChange={handleInputChange} required />
               </Col>
               <Col xs={12}>
                 <Form.Label className="fw-semibold">Description *</Form.Label>
@@ -278,7 +318,14 @@ const filteredProducts = products.filter(
                 <Form.Control name="stock" type="number" min="0" value={newProduct.stock} onChange={handleInputChange} required />
               </Col>
               <Col xs={12} className="d-flex align-items-center">
-                <Form.Check type="checkbox" name="featured" checked={newProduct.featured} onChange={handleInputChange} className="me-2" id="featuredProduct" />
+                <Form.Check 
+                  type="checkbox" 
+                  name="featured" 
+                  checked={newProduct.featured} 
+                  onChange={handleInputChange} 
+                  className="me-2" 
+                  id="featuredProduct" 
+                />
                 <Form.Label htmlFor="featuredProduct" className="mb-0">Featured Product</Form.Label>
               </Col>
             </Row>
@@ -295,301 +342,6 @@ const filteredProducts = products.filter(
       <Footer />
     </div>
   );
-=======
-	const [products, setProducts] = useState([]);
-	const [search, setSearch] = useState("");
-	const [category, setCategory] = useState("All Categories");
-	const [showModal, setShowModal] = useState(false);
-	const [editingProduct, setEditingProduct] = useState(null);
-
-	const [formData, setFormData] = useState({
-		name: "",
-		price: "",
-		desc: "",
-		image: "",
-		category: "",
-		stock: "",
-		featured: false,
-	});
-
-	// ✅ Fetch products from Firestore
-	const fetchProducts = async () => {
-		const querySnapshot = await getDocs(collection(db, "products"));
-		const productList = querySnapshot.docs.map((doc) => ({
-			id: doc.id,
-			...doc.data(),
-		}));
-		setProducts(productList);
-	};
-
-	useEffect(() => {
-		fetchProducts();
-	}, []);
-
-	// ✅ Handle form inputs
-	const handleInputChange = (e) => {
-		const { name, value, type, checked } = e.target;
-		setFormData((prev) => ({
-			...prev,
-			[name]: type === "checkbox" ? checked : value,
-		}));
-	};
-
-	// ✅ Add or Update Product
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-
-		if (editingProduct) {
-			// Update existing product
-			const productRef = doc(db, "products", editingProduct.id);
-			await updateDoc(productRef, {
-				...formData,
-				price: parseFloat(formData.price),
-				stock: parseInt(formData.stock),
-				inStock: parseInt(formData.stock) > 0,
-			});
-		} else {
-			// Add new product
-			await addDoc(collection(db, "products"), {
-				...formData,
-				price: parseFloat(formData.price),
-				stock: parseInt(formData.stock),
-				inStock: parseInt(formData.stock) > 0,
-			});
-		}
-
-		setFormData({ name: "", price: "", desc: "", image: "", category: "", stock: "", featured: false });
-		setEditingProduct(null);
-		setShowModal(false);
-		fetchProducts();
-	};
-
-	// ✅ Delete Product
-	const handleDelete = async (id) => {
-		await deleteDoc(doc(db, "products", id));
-		fetchProducts();
-	};
-
-	// ✅ Edit Product
-	const handleEdit = (product) => {
-		setEditingProduct(product);
-		setFormData(product);
-		setShowModal(true);
-	};
-
-	const handleCloseModal = () => {
-		setShowModal(false);
-		setEditingProduct(null);
-		setFormData({ name: "", price: "", desc: "", image: "", category: "", stock: "", featured: false });
-	};
-
-	// ✅ Filter Products
-	const filteredProducts = products.filter(
-		(p) =>
-			(category === "All Categories" || p.category === category) &&
-			(p.name.toLowerCase().includes(search.toLowerCase()) ||
-				p.desc.toLowerCase().includes(search.toLowerCase()))
-	);
-
-	return (
-		<div style={{ background: "#f8f9fb", minHeight: "100vh", paddingBottom: 40, marginTop: 85, paddingTop: 20 }}>
-			<MyNavbar />
-			<Container fluid className="py-4">
-				<Row className="justify-content-center">
-					<Col xs={12} md={10} lg={9}>
-						<h1 className="fw-bold mb-1" style={{ fontSize: 32 }}>Product Management</h1>
-						<div className="text-secondary mb-4">Manage your product inventory</div>
-
-						{/* Search & Filter */}
-						<Row className="g-2 align-items-center mb-4">
-							<Col xs={12} md={6}>
-								<InputGroup>
-									<InputGroup.Text><FiSearch /></InputGroup.Text>
-									<Form.Control
-										type="text"
-										placeholder="Search products..."
-										value={search}
-										onChange={(e) => setSearch(e.target.value)}
-									/>
-								</InputGroup>
-							</Col>
-							<Col xs={12} md={4}>
-								<Form.Select value={category} onChange={(e) => setCategory(e.target.value)}>
-									{categories.map((c) => (
-										<option key={c} value={c}>{c}</option>
-									))}
-								</Form.Select>
-							</Col>
-
-							<Col xs={12} md={2} className="text-md-end mt-2 mt-md-0">
-								<Button variant="dark" className="w-100 w-md-auto d-flex align-items-center justify-content-center" onClick={() => setShowModal(true)}>
-									<FiPlus className="me-2" /> Add Product
-								</Button>
-							</Col>
-						</Row>
-
-						{/* Add/Edit Product Modal */}
-						<Modal show={showModal} onHide={handleCloseModal} centered size="lg">
-							<Modal.Body style={{ padding: 32 }}>
-								<div className="d-flex justify-content-between align-items-start mb-2">
-									<div>
-										<h4 className="fw-bold mb-1">{editingProduct ? "Edit Product" : "Add New Product"}</h4>
-										<div className="text-secondary mb-3" style={{ fontSize: 15 }}>
-											{editingProduct ? "Update product details" : "Create a new product for your store"}
-										</div>
-									</div>
-									<Button variant="link" onClick={handleCloseModal} style={{ fontSize: 22, color: '#222', textDecoration: 'none', marginTop: -8, marginRight: -8 }}>&times;</Button>
-								</div>
-								<Form onSubmit={handleSubmit}>
-									<Row className="g-3">
-										<Col xs={12} md={6}>
-											<Form.Label className="fw-semibold">Product Name *</Form.Label>
-											<Form.Control
-												name="name"
-												value={formData.name}
-												onChange={handleInputChange}
-												required
-												autoFocus
-											/>
-										</Col>
-										<Col xs={12} md={6}>
-											<Form.Label className="fw-semibold">Price *</Form.Label>
-											<Form.Control
-												name="price"
-												type="number"
-												min="0"
-												value={formData.price}
-												onChange={handleInputChange}
-												required
-											/>
-										</Col>
-										<Col xs={12}>
-											<Form.Label className="fw-semibold">Description *</Form.Label>
-											<Form.Control
-												as="textarea"
-												name="desc"
-												value={formData.desc}
-												onChange={handleInputChange}
-												required
-												rows={2}
-											/>
-										</Col>
-										<Col xs={12}>
-											<Form.Label className="fw-semibold">Image URL</Form.Label>
-											<Form.Control
-												name="image"
-												value={formData.image}
-												onChange={handleInputChange}
-												placeholder="https://example.com/image.jpg"
-											/>
-										</Col>
-										<Col xs={12} md={6}>
-											<Form.Label className="fw-semibold">Category *</Form.Label>
-											<Form.Select
-												name="category"
-												value={formData.category}
-												onChange={handleInputChange}
-												required
-											>
-												<option value="">Select category</option>
-												{categories.filter((c) => c !== "All Categories").map((c) => (
-													<option key={c} value={c}>{c}</option>
-												))}
-											</Form.Select>
-										</Col>
-										<Col xs={12} md={6}>
-											<Form.Label className="fw-semibold">Stock Quantity *</Form.Label>
-											<Form.Control
-												name="stock"
-												type="number"
-												min="0"
-												value={formData.stock}
-												onChange={handleInputChange}
-												required
-											/>
-										</Col>
-										<Col xs={12} className="d-flex align-items-center">
-											<Form.Check
-												type="checkbox"
-												name="featured"
-												checked={formData.featured}
-												onChange={handleInputChange}
-												className="me-2"
-												id="featuredProduct"
-											/>
-											<Form.Label htmlFor="featuredProduct" className="mb-0">Featured Product</Form.Label>
-										</Col>
-									</Row>
-									<div className="d-flex gap-2 mt-4">
-										<Button type="submit" variant="dark" className="flex-grow-1 py-2 fw-semibold">
-											{editingProduct ? "Update Product" : "Add Product"}
-										</Button>
-										<Button variant="light" onClick={handleCloseModal} className="py-2 fw-semibold">Cancel</Button>
-									</div>
-								</Form>
-							</Modal.Body>
-						</Modal>
-
-						{/* Products Table */}
-						<div className="bg-white rounded-4 shadow-sm p-0 overflow-auto">
-							<div className="d-flex align-items-center gap-2 px-4 pt-4 fw-semibold" style={{ fontSize: 18 }}>
-								<FiBox style={{ fontSize: 22 }} />
-								Products <span className="text-secondary">({filteredProducts.length})</span>
-							</div>
-							<Table responsive hover className="align-middle mt-3 mb-0">
-								<thead>
-									<tr className="text-secondary" style={{ fontWeight: 600, fontSize: 16 }}>
-										<th>Product</th>
-										<th>Category</th>
-										<th>Price</th>
-										<th>Stock</th>
-										<th>Status</th>
-										<th>Actions</th>
-									</tr>
-								</thead>
-								<tbody>
-									{filteredProducts.map((product) => (
-										<tr key={product.id}>
-											<td>
-												<div className="d-flex align-items-center gap-2">
-													{product.image && (
-														<img
-															src={product.image}
-															alt={product.name}
-															style={{ width: 48, height: 48, borderRadius: 8, objectFit: "cover", border: "1px solid #eee" }}
-														/>
-													)}
-													<div>
-														<div className="fw-semibold" style={{ fontSize: 16 }}>{product.name}</div>
-														<div className="text-secondary" style={{ fontSize: 14 }}>{product.desc}</div>
-													</div>
-												</div>
-											</td>
-											<td>
-												<Badge bg="light" text="dark" className="fw-semibold px-3 py-2 rounded-3" style={{ fontSize: 14 }}>{product.category}</Badge>
-											</td>
-											<td className="fw-semibold">${parseFloat(product.price).toFixed(2)}</td>
-											<td className="fw-semibold">{product.stock}</td>
-											<td>
-												{product.featured && <Badge bg="dark" className="me-1">Featured</Badge>}
-												{product.inStock && <Badge bg="light" text="dark">In Stock</Badge>}
-											</td>
-											<td>
-												<Button variant="light" className="me-2 p-2" onClick={() => handleEdit(product)}><FiEdit2 /></Button>
-												<Button variant="outline-danger" className="p-2" onClick={() => handleDelete(product.id)}><FiTrash2 /></Button>
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</Table>
-						</div>
-					</Col>
-				</Row>
-			</Container>
-			<Footer />
-		</div>
-	);
->>>>>>> 54c89e19c9e8fddf4f7bdc1b319f5f509e317480
 };
 
 export default ProductManage;
