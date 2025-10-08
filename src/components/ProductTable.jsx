@@ -2,8 +2,6 @@ import React, { useState } from "react";
 
 function ProductTable({ products, onEdit, onDelete }) {
   const [showAll, setShowAll] = useState(false);
-
-  // Show only first 3 products unless "View More" is clicked
   const visibleProducts = showAll ? products : products.slice(0, 3);
 
   return (
@@ -48,7 +46,6 @@ function ProductTable({ products, onEdit, onDelete }) {
         </tbody>
       </table>
 
-      {/* Show "View More" button only if products are more than 3 */}
       {products.length > 3 && (
         <div className="text-center mt-3">
           <button

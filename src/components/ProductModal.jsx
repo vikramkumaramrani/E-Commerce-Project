@@ -12,8 +12,18 @@ function ProductModal({ show, onHide, onSave, product }) {
   });
 
   useEffect(() => {
-    if (product) setForm(product);
-    else setForm({ name: "", description: "", category: "", price: "", stock: "", featured: false });
+    if (product) {
+      setForm(product);
+    } else {
+      setForm({
+        name: "",
+        description: "",
+        category: "",
+        price: "",
+        stock: "",
+        featured: false,
+      });
+    }
   }, [product]);
 
   const handleChange = (e) => {
@@ -34,29 +44,39 @@ function ProductModal({ show, onHide, onSave, product }) {
         <Form>
           <Form.Group className="mb-2">
             <Form.Label>Name</Form.Label>
-            <Form.Control name="name" value={form.name} onChange={handleChange}/>
+            <Form.Control name="name" value={form.name} onChange={handleChange} />
           </Form.Group>
-
           <Form.Group className="mb-2">
             <Form.Label>Description</Form.Label>
-            <Form.Control as="textarea" name="description" value={form.description} onChange={handleChange}/>
+            <Form.Control
+              as="textarea"
+              name="description"
+              value={form.description}
+              onChange={handleChange}
+            />
           </Form.Group>
-
           <Form.Group className="mb-2">
             <Form.Label>Category</Form.Label>
-            <Form.Control name="category" value={form.category} onChange={handleChange}/>
+            <Form.Control name="category" value={form.category} onChange={handleChange} />
           </Form.Group>
-
           <Form.Group className="mb-2">
             <Form.Label>Price</Form.Label>
-            <Form.Control type="number" name="price" value={form.price} onChange={handleChange}/>
+            <Form.Control
+              type="number"
+              name="price"
+              value={form.price}
+              onChange={handleChange}
+            />
           </Form.Group>
-
           <Form.Group className="mb-2">
             <Form.Label>Stock</Form.Label>
-            <Form.Control type="number" name="stock" value={form.stock} onChange={handleChange}/>
+            <Form.Control
+              type="number"
+              name="stock"
+              value={form.stock}
+              onChange={handleChange}
+            />
           </Form.Group>
-
           <Form.Check
             className="mt-2"
             type="checkbox"
@@ -68,8 +88,12 @@ function ProductModal({ show, onHide, onSave, product }) {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={onHide}>Cancel</Button>
-        <Button variant="primary" onClick={handleSubmit}>Save</Button>
+        <Button variant="secondary" onClick={onHide}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleSubmit}>
+          Save
+        </Button>
       </Modal.Footer>
     </Modal>
   );

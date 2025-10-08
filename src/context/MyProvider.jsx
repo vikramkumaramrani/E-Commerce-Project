@@ -1,11 +1,9 @@
-// src/context/MyProvider.jsx
 import React, { createContext, useState } from "react";
 
-// 👉 Yahan named export hai
 export const MyContext = createContext();
 
 function MyProvider({ children }) {
-  const [user, setUser] = useState("Viku Developer"); // default value dal di test ke liye
+  const [user, setUser] = useState("Viku Developer");
 
   return (
     <MyContext.Provider value={{ user, setUser }}>
@@ -14,4 +12,4 @@ function MyProvider({ children }) {
   );
 }
 
-export default MyProvider; // 👉 default export
+export default MyProvider;

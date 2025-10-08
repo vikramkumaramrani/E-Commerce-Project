@@ -10,13 +10,11 @@ import Footer from "./Footer";
 function ProductDetail() {
   const { productId } = useParams();
   const navigate = useNavigate();
-
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
 
-  // ✅ Fetch main product
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -26,8 +24,6 @@ function ProductDetail() {
         if (docSnap.exists()) {
           const productData = { id: docSnap.id, ...docSnap.data() };
           setProduct(productData);
-
-          // Fetch related products after loading main one
           fetchRelatedProducts(productData.category, productData.id);
         } else {
           setProduct(false);
@@ -41,11 +37,7 @@ function ProductDetail() {
 
     const fetchRelatedProducts = async (category, currentId) => {
       try {
-        const q = query(
-          collection(db, "products"),
-          where("category", "==", category),
-          limit(5)
-        );
+        const q = query(collection(db, "products"), where("category", "==", category), limit(5));
         const querySnapshot = await getDocs(q);
         const products = querySnapshot.docs
           .map((doc) => ({ id: doc.id, ...doc.data() }))
@@ -82,19 +74,13 @@ function ProductDetail() {
     <>
       <MyNavbar />
       <Container className="py-5" style={{ minHeight: "100vh" }}>
-        {/* Breadcrumb & Back Button */}
         <div className="mb-3 d-flex justify-content-between align-items-center">
-          <Button
-            variant="light"
-            onClick={() => navigate("/products")}
-            className="border-0"
-          >
+          <Button variant="light" onClick={() => navigate("/products")} className="border-0">
             <BsArrowLeft className="me-2" /> Back to Products
           </Button>
         </div>
 
         <Row className="align-items-center">
-          {/* Image Section */}
           <Col md={6} className="text-center">
             <div
               style={{
@@ -111,21 +97,13 @@ function ProductDetail() {
               }}
             >
               <img
-                src={
-                  product.image ||
-                  "https://via.placeholder.com/500x500.png?text=Product+Image"
-                }
+                src={product.image || "https://via.placeholder.com/500x500.png?text=Product+Image"}
                 alt={product.name}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </div>
           </Col>
 
-          {/* Product Info Section */}
           <Col md={6}>
             <Badge bg="light" text="dark" className="mb-2">
               {product.category || "Electronics"}
@@ -160,7 +138,6 @@ function ProductDetail() {
               </Badge>
             )}
 
-            {/* Quantity Controls */}
             <div className="d-flex align-items-center mb-3">
               <span className="me-2">Quantity</span>
               <Button
@@ -176,9 +153,7 @@ function ProductDetail() {
                 size="sm"
                 onClick={() =>
                   setQuantity(
-                    product.stock
-                      ? Math.min(product.stock, quantity + 1)
-                      : quantity + 1
+                    product.stock ? Math.min(product.stock, quantity + 1) : quantity + 1
                   )
                 }
               >
@@ -186,7 +161,6 @@ function ProductDetail() {
               </Button>
             </div>
 
-            {/* Add to Cart */}
             <Button
               variant="dark"
               className="w-100 py-2"
@@ -195,7 +169,6 @@ function ProductDetail() {
               🛒 Add to Cart — ${Number(product.price * quantity).toFixed(2)}
             </Button>
 
-            {/* Bottom Info */}
             <div className="mt-4 d-flex justify-content-around text-muted small">
               <div>🚚 Free shipping over $50</div>
               <div>🛡 1 year warranty</div>
@@ -204,7 +177,6 @@ function ProductDetail() {
           </Col>
         </Row>
 
-        {/* ✅ Related Products Section */}
         {relatedProducts.length > 0 && (
           <div className="mt-5">
             <h4 className="fw-bold mb-4">Related Products</h4>
@@ -229,11 +201,7 @@ function ProductDetail() {
                           "https://via.placeholder.com/300x180.png?text=Product"
                         }
                         alt={item.name}
-                        style={{
-                          height: "100%",
-                          width: "100%",
-                          objectFit: "cover",
-                        }}
+                        style={{ height: "100%", width: "100%", objectFit: "cover" }}
                       />
                     </div>
                     <Card.Body className="text-center d-flex flex-column">

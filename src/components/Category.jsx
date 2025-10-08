@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { collection, getDocs } from "firebase/firestore";
-import { db } from "../Firebase/firebase"; // ✅ adjust path if needed
+import { db } from "../Firebase/firebase";
 
 function Category() {
   const [categoryCounts, setCategoryCounts] = useState({});
   const navigate = useNavigate();
 
-  // Fetch product data from Firestore
   useEffect(() => {
     const fetchCategoryCounts = async () => {
       try {
@@ -31,8 +30,7 @@ function Category() {
 
   const handleCategoryClick = (category) => {
     let selectedCategory = category;
-    if (category === "Sports") selectedCategory = "Fashion"; // ✅ keep your custom mapping
-
+    if (category === "Sports") selectedCategory = "Fashion";
     navigate(`/products?category=${encodeURIComponent(selectedCategory)}`);
   };
 

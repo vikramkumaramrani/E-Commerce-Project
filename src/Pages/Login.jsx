@@ -3,14 +3,11 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Container, Row, Col, Form, Button, Card } from "react-bootstrap";
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
-
-import { auth } from "../Firebase/firebase"; // Firebase auth import
+import { auth } from "../Firebase/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 function Login() {
   const navigate = useNavigate();
-
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -18,16 +15,14 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
     try {
       await signInWithEmailAndPassword(auth, email, password);
-
       if (email === "admin@ecommerce.com" && password === "admin123") {
         navigate("/dashboard");
       } else {
         setError("Only admin can login here");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to log in. Please check your credentials.");
     }
   };
@@ -45,7 +40,6 @@ function Login() {
               <p className="text-center" style={{ color: "#a3a2a2ff" }}>
                 Enter your email and password to access your account
               </p>
-
               <Form onSubmit={handleLogin}>
                 <Form.Group className="mb-3">
                   <Form.Label>Email address</Form.Label>
@@ -57,7 +51,6 @@ function Login() {
                     required
                   />
                 </Form.Group>
-
                 <Form.Group className="mb-3">
                   <Form.Label>Password</Form.Label>
                   <Form.Control
@@ -68,19 +61,15 @@ function Login() {
                     required
                   />
                 </Form.Group>
-
                 {error && <p className="text-danger text-center">{error}</p>}
-
                 <Button variant="primary" type="submit" className="w-100">
                   Login
                 </Button>
-
                 <Row className="align-items-center my-3">
                   <Col><hr /></Col>
                   <Col xs="auto" className="text-muted">Don't have an account?</Col>
                   <Col><hr /></Col>
                 </Row>
-
                 <NavLink
                   to="/signup"
                   className="w-100 d-block text-center"
@@ -95,7 +84,6 @@ function Login() {
                 >
                   Create new account
                 </NavLink>
-
                 <p
                   className="mt-2"
                   style={{
