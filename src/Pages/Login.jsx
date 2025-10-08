@@ -16,13 +16,19 @@ function Login() {
     e.preventDefault();
     setError("");
     try {
+     
       await signInWithEmailAndPassword(auth, email, password);
+
+      
       if (email === "admin@ecommerce.com" && password === "admin123") {
         navigate("/dashboard");
-      } else {
-        setError("Only admin can login here");
+      } 
+     
+      else {
+        navigate("/");
       }
-    } catch {
+    } catch (error) {
+      console.error("Login error:", error);
       setError("Failed to log in. Please check your credentials.");
     }
   };
@@ -30,11 +36,17 @@ function Login() {
   return (
     <>
       <MyNavbar />
-      <Container className="d-flex justify-content-center align-items-center" style={{ paddingTop: "120px" }}>
+      <Container
+        className="d-flex justify-content-center align-items-center"
+        style={{ paddingTop: "120px" }}
+      >
         <Row className="w-100">
           <Col md={{ span: 5, offset: 3 }}>
             <Card className="p-4 rounded-4">
-              <p className="text-center" style={{ fontSize: "25px", fontWeight: "400" }}>
+              <p
+                className="text-center"
+                style={{ fontSize: "25px", fontWeight: "400" }}
+              >
                 Sign in to your account
               </p>
               <p className="text-center" style={{ color: "#a3a2a2ff" }}>
@@ -61,15 +73,25 @@ function Login() {
                     required
                   />
                 </Form.Group>
+
                 {error && <p className="text-danger text-center">{error}</p>}
+
                 <Button variant="primary" type="submit" className="w-100">
                   Login
                 </Button>
+
                 <Row className="align-items-center my-3">
-                  <Col><hr /></Col>
-                  <Col xs="auto" className="text-muted">Don't have an account?</Col>
-                  <Col><hr /></Col>
+                  <Col>
+                    <hr />
+                  </Col>
+                  <Col xs="auto" className="text-muted">
+                    Don't have an account?
+                  </Col>
+                  <Col>
+                    <hr />
+                  </Col>
                 </Row>
+
                 <NavLink
                   to="/signup"
                   className="w-100 d-block text-center"
@@ -79,21 +101,23 @@ function Login() {
                     color: "#000000ff",
                     padding: "8px",
                     borderRadius: "5px",
-                    textDecoration: "none"
+                    textDecoration: "none",
                   }}
                 >
                   Create new account
                 </NavLink>
+
                 <p
                   className="mt-2"
                   style={{
                     color: "#0022aaff",
                     backgroundColor: "#e1e8fcff",
                     borderRadius: "5px",
-                    padding: "7px"
+                    padding: "7px",
                   }}
                 >
-                  <b>Demo Credentials:</b><br />
+                  <b>Demo Credentials:</b>
+                  <br />
                   Admin: admin@ecommerce.com / admin123
                 </p>
               </Form>
