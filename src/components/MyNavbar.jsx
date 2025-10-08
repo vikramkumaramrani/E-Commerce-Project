@@ -35,7 +35,7 @@ function MyNavbar() {
         <Navbar.Toggle aria-controls="navbar-nav" />
 
         <Navbar.Collapse id="navbar-nav">
-          {/* Search Bar */}
+          
           <Form
             className="d-flex mx-lg-auto my-2 my-lg-0 w-lg-50"
             id="search-form"
@@ -60,7 +60,7 @@ function MyNavbar() {
             </div>
           </Form>
 
-          {/* Right Side */}
+         
           <Nav className="ms-lg-auto mt-2 mt-lg-0 d-flex align-items-center">
             <div className="d-flex align-items-center">
               <Nav.Link
@@ -76,7 +76,6 @@ function MyNavbar() {
               )}
             </div>
 
-            {/* Login / Signup hide karne ka logic */}
             {!hideAuthLinks && (
               <>
                 <Nav.Link
