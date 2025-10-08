@@ -1,237 +1,264 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Button, Toast, ToastContainer } from "react-bootstrap";
-import { BsArrowLeft } from "react-icons/bs";
-import MyNavbar from "./MyNavbar.jsx"; // Assuming this component exists
-import { db } from "../Firebase/firebase.js"; // Assuming db is correctly imported and configured
+import { db } from "../Firebase/firebase";
 import { doc, getDoc, collection, query, where, limit, getDocs } from "firebase/firestore";
+import { Container, Row, Col, Button, Spinner, Badge, Card } from "react-bootstrap";
+import { BsArrowLeft } from "react-icons/bs";
+import MyNavbar from "./MyNavbar";
+import Footer from "./Footer";
 
 function ProductDetail() {
   const { productId } = useParams();
   const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
-  const [similarProducts, setSimilarProducts] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [showToast, setShowToast] = useState(false);
-  const [toastMsg, setToastMsg] = useState("");
 
-  // Fetch product details
+  // ✅ Fetch main product
   useEffect(() => {
     const fetchProduct = async () => {
-      // Reset states on productId change
-      setProduct(null);
-      setSimilarProducts([]);
-
       try {
         const docRef = doc(db, "products", productId);
-        const snap = await getDoc(docRef);
+        const docSnap = await getDoc(docRef);
 
-        if (snap.exists()) {
-          const productData = { id: snap.id, ...snap.data() };
+        if (docSnap.exists()) {
+          const productData = { id: docSnap.id, ...docSnap.data() };
           setProduct(productData);
 
-          // Fetch similar products
-          if (productData.category) {
-            const q = query(
-              collection(db, "products"),
-              where("category", "==", productData.category),
-              // Filter out the current product ID on the client side
-              limit(5)
-            );
-            const querySnap = await getDocs(q);
-            const allProducts = querySnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-            
-            // Exclude current product and take up to 4 similar ones
-            const filtered = allProducts.filter((p) => p.id !== productData.id).slice(0, 4);
-            setSimilarProducts(filtered);
-          }
+          // Fetch related products after loading main one
+          fetchRelatedProducts(productData.category, productData.id);
         } else {
-          console.warn(`Product with ID ${productId} not found in Firestore`);
-          setProduct(false); // Signal that product was searched for but not found
+          setProduct(false);
         }
       } catch (error) {
         console.error("Error fetching product:", error);
-        setProduct(false); // Signal an error occurred
+      } finally {
+        setLoading(false);
       }
     };
+
+    const fetchRelatedProducts = async (category, currentId) => {
+      try {
+        const q = query(
+          collection(db, "products"),
+          where("category", "==", category),
+          limit(5)
+        );
+        const querySnapshot = await getDocs(q);
+        const products = querySnapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((p) => p.id !== currentId)
+          .slice(0, 4);
+        setRelatedProducts(products);
+      } catch (error) {
+        console.error("Error fetching related products:", error);
+      }
+    };
+
     fetchProduct();
   }, [productId]);
 
-  const handleDecrease = () => setQuantity((q) => Math.max(1, q - 1));
-  const handleIncrease = () => setQuantity((q) => q + 1);
+  if (loading)
+    return (
+      <div className="text-center mt-5">
+        <Spinner animation="border" variant="primary" />
+        <p>Loading product...</p>
+      </div>
+    );
 
-  const handleAddToCart = () => {
-    // In a real app, you'd dispatch an action or update a global cart state here
-    setToastMsg(`${quantity} ${product.name}(s) added to cart!`);
-    setShowToast(true);
-    // Optionally, reset quantity to 1 after adding to cart
-    setQuantity(1); 
-  };
-  
-  // Handle Loading and Not Found states
-  if (product === null) return <div className="text-center py-5">Loading...</div>;
-  if (product === false) return <div className="text-center py-5">Product not found!</div>;
+  if (product === false)
+    return (
+      <div className="text-center mt-5">
+        <p>Product not found.</p>
+        <Button variant="secondary" onClick={() => navigate(-1)}>
+          <BsArrowLeft /> Go Back
+        </Button>
+      </div>
+    );
 
   return (
     <>
       <MyNavbar />
-      <div className="container py-5" style={{ background: "#f7f9fa", minHeight: "100vh" }}>
-      
-        {/* Breadcrumb Navigation */}
-        <nav aria-label="breadcrumb" className="mb-2">
-          <ol className="breadcrumb">
-            <li className="breadcrumb-item">
-              <Link to="/products" style={{ color: "#111", textDecoration: "none", fontWeight: 500 }}>
-                Products
-              </Link>
-            </li>
-            {product.category && (
-              <li className="breadcrumb-item">
-                <Link
-                  to={`/products?category=${encodeURIComponent(product.category)}`}
-                  style={{ color: "#111", textDecoration: "none", fontWeight: 500 }}
-                >
-                  {product.category}
-                </Link>
-              </li>
-            )}
-            <li className="breadcrumb-item active" aria-current="page">
-              {product.name}
-            </li>
-          </ol>
-        </nav>
+      <Container className="py-5" style={{ minHeight: "100vh" }}>
+        {/* Breadcrumb & Back Button */}
+        <div className="mb-3 d-flex justify-content-between align-items-center">
+          <Button
+            variant="light"
+            onClick={() => navigate("/products")}
+            className="border-0"
+          >
+            <BsArrowLeft className="me-2" /> Back to Products
+          </Button>
+        </div>
 
-        <Button variant="light" onClick={() => navigate("/products")} className="mb-3">
-          <BsArrowLeft style={{ marginRight: "6px", marginBottom: "2px" }} />
-          <span style={{ fontWeight: 600 }}>Back to Products</span>
-        </Button>
+        <Row className="align-items-center">
+          {/* Image Section */}
+          <Col md={6} className="text-center">
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "500px",
+                height: "400px",
+                margin: "0 auto",
+                overflow: "hidden",
+                borderRadius: "10px",
+                background: "#fff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={
+                  product.image ||
+                  "https://via.placeholder.com/500x500.png?text=Product+Image"
+                }
+                alt={product.name}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            </div>
+          </Col>
 
-        {/* Product Details Row */}
-        <div className="row">
-          <div className="col-md-6">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="img-fluid rounded"
-              
-              style={{ maxHeight: "400px", objectFit: "contain" }} 
-            />
-          </div>
-          <div className="col-md-6">
-            {product.category && (
-                <span className="badge bg-light text-dark mb-2">{product.category}</span>
-            )}
-            <h2>{product.name}</h2>
-            {product.rating && (
-              <div className="mb-2">
-                <span className="text-warning">
-                  {"★".repeat(Math.floor(product.rating))}
-                  {"☆".repeat(5 - Math.floor(product.rating))}
-                </span>
-                <span className="ms-2 text-muted">
-                  ({product.rating} - {product.reviews || 0} reviews)
-                </span>
-              </div>
-            )}
-            <h3 className="text-primary mb-3">${Number(product.price).toFixed(2)}</h3>
-            <h5>Description</h5>
-            <p>{product.description}</p>
+          {/* Product Info Section */}
+          <Col md={6}>
+            <Badge bg="light" text="dark" className="mb-2">
+              {product.category || "Electronics"}
+            </Badge>
+            <h3 className="fw-bold">{product.name}</h3>
+            <div className="d-flex align-items-center mb-2">
+              <span className="text-warning me-2">
+                {"★".repeat(Math.floor(product.rating || 4.5))}
+                {"☆".repeat(5 - Math.floor(product.rating || 4.5))}
+              </span>
+              <span className="text-muted">
+                ({product.rating || 4.5}) • {product.reviews || 123} reviews
+              </span>
+            </div>
+            <hr />
+            <h4 className="text-primary mb-3">${product.price || "99.99"}</h4>
+
+            <h6 className="fw-semibold">Description</h6>
+            <p className="text-muted">
+              {product.desc ||
+                "Premium quality wireless headphones with noise cancellation and 30-hour battery life."}
+            </p>
+            <hr />
+
             {product.stock > 0 ? (
-              <div className="mb-2">
-                <span className="badge bg-success">{product.stock} in stock</span>
-              </div>
+              <Badge bg="success" className="mb-3">
+                {product.stock} in stock
+              </Badge>
             ) : (
-                <div className="mb-2">
-                    <span className="badge bg-danger">Out of stock</span>
-                </div>
+              <Badge bg="danger" className="mb-3">
+                Out of stock
+              </Badge>
             )}
 
-            {/* Quantity Selector */}
+            {/* Quantity Controls */}
             <div className="d-flex align-items-center mb-3">
               <span className="me-2">Quantity</span>
-              <Button 
-                variant="outline-secondary" 
-                size="sm" 
-                onClick={handleDecrease} 
-                disabled={quantity === 1}
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
               >
-                -
+                −
               </Button>
-              <span className="mx-2">{quantity}</span>
-              <Button 
-                variant="outline-secondary" 
-                size="sm" 
-                onClick={handleIncrease}
-                disabled={product.stock && quantity >= product.stock} 
+              <span className="mx-2 fw-bold">{quantity}</span>
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() =>
+                  setQuantity(
+                    product.stock
+                      ? Math.min(product.stock, quantity + 1)
+                      : quantity + 1
+                  )
+                }
               >
                 +
               </Button>
             </div>
 
-            <Button 
-                variant="dark" 
-                className="w-100 mb-3" 
-                onClick={handleAddToCart}
-                disabled={product.stock <= 0} 
+            {/* Add to Cart */}
+            <Button
+              variant="dark"
+              className="w-100 py-2"
+              disabled={product.stock <= 0}
             >
-              <i className="bi bi-cart"></i> Add to Cart - ${Number(product.price * quantity).toFixed(2)}
+              🛒 Add to Cart — ${Number(product.price * quantity).toFixed(2)}
             </Button>
-          </div>
-        </div>
 
-        
-        {similarProducts.length > 0 && (
+            {/* Bottom Info */}
+            <div className="mt-4 d-flex justify-content-around text-muted small">
+              <div>🚚 Free shipping over $50</div>
+              <div>🛡 1 year warranty</div>
+              <div>↩️ 30-day returns</div>
+            </div>
+          </Col>
+        </Row>
+
+        {/* ✅ Related Products Section */}
+        {relatedProducts.length > 0 && (
           <div className="mt-5">
-            <h4>Similar Products</h4>
-            <div className="row">
-              {similarProducts.map((p) => (
-                <div className="col-md-3 mb-4" key={p.id}>
-                  <div className="card h-100">
-                    <img
-                      src={p.image}
-                      className="card-img-top"
-                      alt={p.name}
-                      style={{ height: "180px", objectFit: "contain" }}
-                    />
-                    <div className="card-body d-flex flex-column">
-                      <h6 className="card-title">{p.name}</h6>
-                      <p className="text-primary fw-bold">${Number(p.price).toFixed(2)}</p>
+            <h4 className="fw-bold mb-4">Related Products</h4>
+            <Row>
+              {relatedProducts.map((item) => (
+                <Col md={3} sm={6} key={item.id} className="mb-4">
+                  <Card className="h-100 shadow-sm border-0">
+                    <div
+                      style={{
+                        height: "180px",
+                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#f8f9fa",
+                      }}
+                    >
+                      <Card.Img
+                        variant="top"
+                        src={
+                          item.image ||
+                          "https://via.placeholder.com/300x180.png?text=Product"
+                        }
+                        alt={item.name}
+                        style={{
+                          height: "100%",
+                          width: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    </div>
+                    <Card.Body className="text-center d-flex flex-column">
+                      <Card.Title className="fs-6">{item.name}</Card.Title>
+                      <Card.Text className="text-primary fw-bold mb-3">
+                        ${item.price}
+                      </Card.Text>
                       <Button
                         as={Link}
-                        to={`/product/${p.id}`}
+                        to={`/product/${item.id}`}
                         variant="outline-dark"
+                        size="sm"
                         className="mt-auto"
                       >
-                        View
+                        View Details
                       </Button>
-                    </div>
-                  </div>
-                </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
               ))}
-            </div>
+            </Row>
           </div>
         )}
-
-        {/* Toast Notification */}
-        <ToastContainer 
-            position="bottom-end" 
-            className="p-3" 
-            style={{ zIndex: 9999 }}
-        >
-          <Toast 
-            show={showToast} 
-            onClose={() => setShowToast(false)} 
-            bg="success" 
-            delay={3000} 
-            autohide
-          >
-            <Toast.Body style={{ color: "#fff", fontWeight: 500 }}>
-              {toastMsg}
-            </Toast.Body>
-          </Toast>
-        </ToastContainer>
-      </div>
+      </Container>
+      <Footer />
     </>
   );
 }
