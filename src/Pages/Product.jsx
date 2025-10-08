@@ -73,7 +73,7 @@ function Product() {
   if (search) {
     filteredProducts = filteredProducts.filter((p) =>
       p.name?.toLowerCase().includes(search.toLowerCase()) || 
-      p.description?.toLowerCase().includes(search.toLowerCase()) ||
+      p.desc?.toLowerCase().includes(search.toLowerCase()) ||
       p.category?.toLowerCase().includes(search.toLowerCase())
     );
   }
@@ -235,20 +235,20 @@ function Product() {
                     </div>
 
                     <Card.Text style={{ fontSize: '0.9rem', color: '#6c757d' }}>
-                      {p.description || "No description available."}
+                      {p.desc || "No description available."}
                     </Card.Text>
 
                     <div className="d-flex justify-content-between align-items-center mb-3 mt-3">
                       <h4 className="text-primary mb-0">${Number(p.price).toFixed(2)}</h4>
                       <div className="text-warning">
-                        {/* Static rating for demonstration */}
-                        ★<span className="text-muted">(N/A)</span>
+                        
+                        ★★★★★<span className="text-muted">(4.5)</span>
                       </div>
                     </div>
                     <div className="d-flex gap-2">
                       <Button
                         as={Link}
-                        to={`/product/${p.id}`} // Navigate using Firestore doc id
+                        to={`/product/${p.id}`} 
                         variant="outline-primary"
                         size="sm"
                         className="flex-fill fw-semibold"
