@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button, Card } from "react-bootstrap";
-import { auth } from "../Firebase/firebase";
+import { auth, db } from "../Firebase/firebase"; // db import added
+import { collection, onSnapshot } from "firebase/firestore"; // Firestore functions
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "./product.css";
@@ -18,6 +19,7 @@ import {
 
 function Dashboard() {
   const navigate = useNavigate();
+  const [activeUsers, setActiveUsers] = useState(0); // 👈 added state
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -26,6 +28,15 @@ function Dashboard() {
       navigate("/login");
     }
   }, [navigate]);
+
+  // 👇 Real-time listener for active (registered) users
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+      setActiveUsers(snapshot.size); // total users count
+    });
+
+    return () => unsubscribe(); // cleanup on unmount
+  }, []);
 
   return (
     <div>
@@ -107,11 +118,12 @@ function Dashboard() {
             </Card>
           </Col>
 
+          {/* 👇 Active Users Card Updated */}
           <Col xs={12} md={3}>
             <Card className="p-3 shadow-sm h-100">
               <Card.Body className="text-center">
                 <h5>Active Users</h5>
-                <h2 className="pt-3">1</h2>
+                <h2 className="pt-3">{activeUsers}</h2>
                 <p className="text-muted">Registered users</p>
                 <FiUsers size={20} />
               </Card.Body>
