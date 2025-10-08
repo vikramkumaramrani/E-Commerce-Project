@@ -91,7 +91,7 @@ function Products() {
                       {p.name}
                       <span className="badge bg-secondary">{p.category}</span>
                     </h5>
-                    <p className="card-text flex-grow-1">{p.description}</p>
+                    <p className="card-text flex-grow-1">{p.desc}</p>
 
                     <div className="d-flex justify-content-between align-items-center mb-2 mt-auto">
                       <h4 className="text-primary">${p.price}</h4>
