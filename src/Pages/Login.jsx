@@ -11,27 +11,24 @@ function Login() {
   const navigate = useNavigate();
 
 
-  const [email, setEmail]       = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError]       = useState("");
+  const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
 
     try {
-     
       await signInWithEmailAndPassword(auth, email, password);
 
-     
       if (email === "admin@ecommerce.com" && password === "admin123") {
-        navigate("/dashboard"); 
+        navigate("/dashboard");
       } else {
         setError("Only admin can login here");
       }
-
     } catch (err) {
-      setError("Invalid email or password");
+      setError("Failed to log in. Please check your credentials.");
     }
   };
 

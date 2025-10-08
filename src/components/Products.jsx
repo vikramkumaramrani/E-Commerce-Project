@@ -4,14 +4,16 @@ import { Toast, ToastContainer } from "react-bootstrap";
 import { db } from "../Firebase/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import "./../Styles/products.css";
+import shoes from "../assets/images/shoes.jpg"; 
 
 function Products() {
   const navigate = useNavigate();
-  const [cart, setCart] = useState([]);
+  const [Cart, setCart] = useState([]);
   const [showToast, setShowToast] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
 
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -20,14 +22,14 @@ function Products() {
         const snapshot = await getDocs(productsRef);
         const data = snapshot.docs.map((doc) => ({
           id: doc.id,
-          // Assuming your product data includes a 'imageUrl' field
-          // If you use a different field name, replace 'imageUrl' below.
           ...doc.data(),
         }));
 
         setProducts(data);
       } catch (err) {
         console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -41,8 +43,21 @@ function Products() {
     setTimeout(() => setShowToast(false), 2500);
   };
 
-  // Default Image for placeholder cards, if not present in the placeholder data
-  const DEFAULT_IMAGE_URL = "https://via.placeholder.com/500x500.png?text=Product+Image";
+ 
+  const DEFAULT_IMAGE_URL =
+    "https://via.placeholder.com/500x500.png?text=Product+Image";
+
+  
+  if (loading) {
+    return (
+      <div
+        className="text-center my-5"
+        style={{ fontFamily: "Inter, sans-serif", paddingTop: "100px" }}
+      >
+        <h4>Loading products...</h4>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -58,17 +73,14 @@ function Products() {
 
       <div className="container py-5">
         <div className="row g-4 justify-content-center">
-
           {products.length > 0 ? (
+           
             products.slice(0, 3).map((p) => (
-             
               <div className="col-12 col-sm-6 col-lg-4" key={p.id}>
                 <div className="card shadow-sm h-100 product-card">
                   <div className="image-wrapper">
-                  
                     <img
-                      
-                      src={p.imageUrl} 
+                      src={p.image || DEFAULT_IMAGE_URL} 
                       className="card-img-top zoom-img"
                       alt={p.name}
                       style={{ maxHeight: "250px", objectFit: "cover" }}
@@ -76,12 +88,12 @@ function Products() {
                   </div>
                   <div className="card-body d-flex flex-column">
                     <h5 className="card-title d-flex justify-content-between align-items-center">
-                      {p.name}{" "}
+                      {p.name}
                       <span className="badge bg-secondary">{p.category}</span>
                     </h5>
-                    <p className="card-text flex-grow-1">{p.description}</p> 
+                    <p className="card-text flex-grow-1">{p.description}</p>
 
-                    <div className="d-flex justify-content-between align-items-center mb-2 mt-auto"> 
+                    <div className="d-flex justify-content-between align-items-center mb-2 mt-auto">
                       <h4 className="text-primary">${p.price}</h4>
                       <div className="d-flex gap-2">
                         <button
@@ -111,15 +123,14 @@ function Products() {
               </div>
             ))
           ) : (
-            
+           
             <>
-              {/* Shoes Placeholder Card */}
+             
               <div className="col-12 col-sm-6 col-lg-4">
                 <div className="card shadow-sm h-100 product-card">
                   <div className="image-wrapper">
-                    {/* Dynamic Image Path (Placeholder) */}
                     <img
-                      src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop"
+                      src={shoes} 
                       className="card-img-top zoom-img"
                       alt="Shoes"
                       style={{ maxHeight: "250px", objectFit: "cover" }}
@@ -139,7 +150,7 @@ function Products() {
                       <div className="d-flex gap-2">
                         <button
                           className="btn btn-outline-primary btn-sm"
-                          onClick={() => navigate("/product/Shoes")}
+                          onClick={() => navigate(`/product/local-shoes`)}
                         >
                           View
                         </button>
@@ -159,13 +170,12 @@ function Products() {
                 </div>
               </div>
 
-              {/* Yoga Mat Placeholder Card */}
+              {/* Yoga Mat Card */}
               <div className="col-12 col-sm-6 col-lg-4">
                 <div className="card shadow-sm h-100 product-card">
                   <div className="image-wrapper">
-                    {/* Dynamic Image Path (Placeholder) */}
                     <img
-                      src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&h=500&fit=crop"
+                      src="https://media.istockphoto.com/id/814423752/photo/eye-of-model-with-colorful-art-make-up-close-up.jpg?s=612x612&w=0&k=20&c=l15OdMWjgCKycMMShP8UK94ELVlEGvt7GmB_esHWPYE="
                       className="card-img-top zoom-img"
                       alt="Yoga Mat"
                       style={{ maxHeight: "250px", objectFit: "cover" }}
@@ -184,7 +194,7 @@ function Products() {
                       <div className="d-flex gap-2">
                         <button
                           className="btn btn-outline-primary btn-sm"
-                          onClick={() => navigate("/product/Yoga Mat")}
+                          onClick={() => navigate("/product/local-yogamat")}
                         >
                           View
                         </button>
@@ -211,9 +221,9 @@ function Products() {
         <div className="text-center mt-5">
           <button
             id="view-btn"
-            className="btn btn-lg" // Use btn-lg for a larger button on all screens
+            className="btn btn-lg"
             style={{
-              backgroundColor: "#ffffffff",
+              backgroundColor: "#fff",
               color: "black",
               borderColor: "#b3b1b1ff",
               fontWeight: "500",

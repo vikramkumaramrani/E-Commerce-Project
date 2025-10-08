@@ -114,7 +114,7 @@ function ProductDetail() {
               src={product.image}
               alt={product.name}
               className="img-fluid rounded"
-              // Using a fixed max-height and contain object-fit for good presentation
+              
               style={{ maxHeight: "400px", objectFit: "contain" }} 
             />
           </div>
@@ -163,7 +163,7 @@ function ProductDetail() {
                 variant="outline-secondary" 
                 size="sm" 
                 onClick={handleIncrease}
-                disabled={product.stock && quantity >= product.stock} // Disable if max stock reached
+                disabled={product.stock && quantity >= product.stock} 
               >
                 +
               </Button>
@@ -173,14 +173,14 @@ function ProductDetail() {
                 variant="dark" 
                 className="w-100 mb-3" 
                 onClick={handleAddToCart}
-                disabled={product.stock <= 0} // Disable if out of stock
+                disabled={product.stock <= 0} 
             >
               <i className="bi bi-cart"></i> Add to Cart - ${Number(product.price * quantity).toFixed(2)}
             </Button>
           </div>
         </div>
 
-        {/* Similar Products */}
+        
         {similarProducts.length > 0 && (
           <div className="mt-5">
             <h4>Similar Products</h4>
