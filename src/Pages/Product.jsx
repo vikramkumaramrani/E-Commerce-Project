@@ -121,6 +121,7 @@ function Product() {
                   <option value="electronics">Electronics</option>
                   <option value="fashion">Fashion</option>
                   <option value="home">Home</option>
+                  <option value="glossary">Glossary</option>
                 </Form.Select>
               </Form.Group>
             </Col>
