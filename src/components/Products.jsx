@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Toast, ToastContainer } from "react-bootstrap";
-import { db } from "../Firebase/firebase";
+import { db, auth } from "../Firebase/firebase"; //  added auth import
 import { collection, getDocs } from "firebase/firestore";
 import "./../Styles/products.css";
 import shoes from "../assets/images/shoes.jpg";
@@ -13,8 +13,6 @@ function Products() {
   const [toastMsg, setToastMsg] = useState("");
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-
-
 
   const DEFAULT_IMAGE_URL = "https://placehold.co/500x500?text=Product+Image";
 
@@ -37,7 +35,20 @@ function Products() {
     fetchProducts();
   }, []);
 
+  // ✅ Updated Add to Cart function with login check
   const handleAddToCart = (productName) => {
+    const user = auth.currentUser;
+
+    if (!user) {
+      const confirmLogin = window.confirm(
+        "Please login or sign up to add products to your cart!"
+      );
+      if (confirmLogin) {
+        navigate("/login");
+      }
+      return;
+    }
+
     setCart((prev) => [...prev, productName]);
     setToastMsg(`${productName} added to cart!`);
     setShowToast(true);
@@ -90,7 +101,7 @@ function Products() {
                       {p.desc || "No description available."}
                     </p>
                     <div className="d-flex justify-content-between align-items-center mb-2 mt-auto">
-                      <h4 className="text-primary">${p.price}</h4>
+                      <h4 className="text-primary">₨.{p.price}</h4>
                       <div className="d-flex gap-2">
                         <button
                           className="btn btn-outline-primary btn-sm"

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Card, Button, Badge } from "react-bootstrap";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom"; //  Added useNavigate
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../Firebase/firebase";
+import { db, auth } from "../Firebase/firebase"; //  Added auth import
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "./product.css";
@@ -15,6 +15,7 @@ import watch from "../assets/images/watch.jpg";
 
 function Product() {
   const location = useLocation();
+  const navigate = useNavigate(); //  Added for redirect
   const [allProducts, setAllProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
@@ -89,6 +90,24 @@ function Product() {
     return imageUrl;
   };
 
+  //  Add to Cart Click Function (with login check)
+  const handleAddToCart = (product) => {
+    const user = auth.currentUser; // check user login or not
+
+    if (!user) {
+      const confirmLogin = window.confirm("Please login or sign up to add products to your cart!");
+      if (confirmLogin) {
+        navigate("/login"); //  redirect to login page
+      }
+      return;
+    }
+
+    alert(`You selected: ${product.name}`);
+    setTimeout(() => {
+      alert("Added to Cart!");
+    }, 600);
+  };
+
   return (
     <div>
       <MyNavbar />
@@ -121,7 +140,7 @@ function Product() {
                   <option value="electronics">Electronics</option>
                   <option value="fashion">Fashion</option>
                   <option value="home">Home</option>
-                  <option value="glossary">Glossary</option>
+                  <option value="grossary">Grossary</option>
                 </Form.Select>
               </Form.Group>
             </Col>
@@ -130,9 +149,9 @@ function Product() {
                 <Form.Label className="fw-semibold">Price Range</Form.Label>
                 <Form.Select value={price} onChange={e => setPrice(e.target.value)}>
                   <option value="all">All Prices</option>
-                  <option value="0-50">$0 - $50</option>
-                  <option value="50-100">$50 - $100</option>
-                  <option value="100+">$100+</option>
+                  <option value="0-50">₨ 0 - ₨ 50</option>
+                  <option value="50-100">₨ 50 - ₨ 100</option>
+                  <option value="100+">₨ 100+</option>
                 </Form.Select>
               </Form.Group>
             </Col>
@@ -170,19 +189,19 @@ function Product() {
                     />
                   </div>
                   <Card.Body>
-                    <div className="d-flex align-items-center mb-2">
+                    <div className="d-flex align-items-center flex-wrap mb-2">
                       <Badge bg="secondary" className="me-2">
                         {p.category || "N/A"}
                       </Badge>
-                      <h5 className="mb-0 fw-bold" style={{ fontSize: "1.1rem" }}>
+                      <h5 className="mb-0 fw-bold truncate-1-lines" style={{ fontSize: "1.1rem" }}>
                         {p.name || "Untitled Product"}
                       </h5>
                     </div>
-                    <Card.Text style={{ fontSize: "0.9rem", color: "#6c757d" }}>
+                    <Card.Text className="truncate-2-lines" style={{ fontSize: "0.9rem", color: "#6c757d" }}>
                       {p.desc || "No description available."}
                     </Card.Text>
                     <div className="d-flex justify-content-between align-items-center mb-3 mt-3">
-                      <h4 className="text-primary mb-0">${Number(p.price).toFixed(2)}</h4>
+                      <h4 className="text-primary mb-0">Rs. {Number(p.price).toFixed(2)}</h4>
                       <div className="text-warning">
                         ★★★★★<span className="text-muted">(4.5)</span>
                       </div>
@@ -197,7 +216,14 @@ function Product() {
                       >
                         View Details
                       </Button>
-                      <Button variant="dark" size="sm" className="flex-fill fw-semibold">
+
+                      {/*  Add to Cart button with login check */}
+                      <Button
+                        variant="dark"
+                        size="sm"
+                        className="flex-fill fw-semibold"
+                        onClick={() => handleAddToCart(p)}
+                      >
                         <i className="bi bi-cart me-1"></i> Add to Cart
                       </Button>
                     </div>

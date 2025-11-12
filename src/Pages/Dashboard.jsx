@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button, Card } from "react-bootstrap";
-import { auth, db } from "../Firebase/firebase"; // db import added
-import { collection, onSnapshot } from "firebase/firestore"; // Firestore functions
+import { auth, db } from "../Firebase/firebase";
+import { collection, onSnapshot } from "firebase/firestore";
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "./product.css";
@@ -19,23 +19,44 @@ import {
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [activeUsers, setActiveUsers] = useState(0); // 👈 added state
+
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  const [activeUsers, setActiveUsers] = useState(0);
 
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user || user.email !== "admin@ecommerce.com") {
+    const currentUser = auth.currentUser;
+    if (!currentUser || currentUser.email !== "admin@ecommerce.com") {
       alert("Access denied! Only admin can view this page.");
       navigate("/login");
     }
   }, [navigate]);
 
-  // 👇 Real-time listener for active (registered) users
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
-      setActiveUsers(snapshot.size); // total users count
+    const unsubscribeProducts = onSnapshot(collection(db, "products"), (snapshot) => {
+      setTotalProducts(snapshot.size);
     });
+    return () => unsubscribeProducts();
+  }, []);
 
-    return () => unsubscribe(); // cleanup on unmount
+  useEffect(() => {
+    const unsubscribeUsers = onSnapshot(collection(db, "users"), (snapshot) => {
+      setActiveUsers(snapshot.size);
+    });
+    return () => unsubscribeUsers();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribeOrders = onSnapshot(collection(db, "orders"), (snapshot) => {
+      setTotalOrders(snapshot.size);
+      let total = 0;
+      snapshot.forEach((doc) => {
+        total += doc.data().totalPrice || 0;
+      });
+      setTotalRevenue(total);
+    });
+    return () => unsubscribeOrders();
   }, []);
 
   return (
@@ -47,35 +68,26 @@ function Dashboard() {
 
         <Row className="mb-4 g-2 justify-content-center text-center">
           <Col xs={12} md={3}>
-            <Button
-              variant="dark"
-              className="w-100"
-              onClick={() => navigate("/productManage")}
-            >
+            <Button variant="dark" className="w-100" onClick={() => navigate("/productManage")}>
               <FiBox className="me-2" />
               Manage Products
             </Button>
           </Col>
+
           <Col xs={12} md={3}>
-            <Button
-              variant="outline-dark"
-              className="w-100"
-              onClick={() => navigate("/OrderManage")}
-            >
+            <Button variant="outline-dark" className="w-100" onClick={() => navigate("/OrderManage")}>
               <FiShoppingCart className="me-2" />
               Manage Orders
             </Button>
           </Col>
+
           <Col xs={12} md={3}>
-            <Button
-              variant="outline-dark"
-              className="w-100"
-              onClick={() => navigate("/ProductManage")}
-            >
+            <Button variant="outline-dark" className="w-100" onClick={() => navigate("/ProductManage")}>
               <FiPlus className="me-2" />
               Add Product
             </Button>
           </Col>
+
           <Col xs={12} md={3}>
             <Button variant="outline-dark" className="w-100">
               <FiSettings className="me-2" />
@@ -89,7 +101,7 @@ function Dashboard() {
             <Card className="p-3 shadow-sm">
               <Card.Body className="text-center">
                 <h5>Total Products</h5>
-                <h2 className="pt-3">6</h2>
+                <h2 className="pt-3">{totalProducts}</h2>
                 <p className="text-muted">0 low stock</p>
                 <FiBox size={20} />
               </Card.Body>
@@ -100,7 +112,7 @@ function Dashboard() {
             <Card className="p-3 shadow-sm h-100">
               <Card.Body className="text-center">
                 <h5>Total Orders</h5>
-                <h2 className="pt-3">0</h2>
+                <h2 className="pt-3">{totalOrders}</h2>
                 <p className="text-muted">0 pending</p>
                 <FiShoppingCart size={20} />
               </Card.Body>
@@ -111,14 +123,13 @@ function Dashboard() {
             <Card className="p-3 shadow-sm h-100">
               <Card.Body className="text-center">
                 <h5>Total Revenue</h5>
-                <h2 className="pt-3">$0.00</h2>
+                <h2 className="pt-3">$ {Number(totalRevenue).toFixed(2)}</h2>
                 <p className="text-muted">All time revenue</p>
                 <FiDollarSign size={20} />
               </Card.Body>
             </Card>
           </Col>
 
-          {/* 👇 Active Users Card Updated */}
           <Col xs={12} md={3}>
             <Card className="p-3 shadow-sm h-100">
               <Card.Body className="text-center">
@@ -173,7 +184,7 @@ function Dashboard() {
                 <small className="text-muted">Order Fulfillment Rate</small>
               </Col>
               <Col xs={12} md={4}>
-                <h5 style={{ color: "purple" }}>320</h5>
+                <h5 style={{ color: "purple" }}>{totalProducts}</h5>
                 <small className="text-muted">Total Inventory</small>
               </Col>
             </Row>

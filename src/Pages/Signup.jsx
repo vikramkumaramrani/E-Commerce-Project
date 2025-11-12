@@ -40,7 +40,7 @@ function Signup() {
       });
 
       alert("Account created successfully!");
-      navigate("/login");
+      navigate("/Home");
     } catch (err) {
       setError(err.message);
     }

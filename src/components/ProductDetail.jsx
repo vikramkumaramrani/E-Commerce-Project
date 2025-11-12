@@ -119,7 +119,7 @@ function ProductDetail() {
               </span>
             </div>
             <hr />
-            <h4 className="text-primary mb-3">${product.price || "99.99"}</h4>
+            <h4 className="text-primary mb-3">Rs.{product.price || "99.99"}</h4>
 
             <h6 className="fw-semibold">Description</h6>
             <p className="text-muted">
@@ -166,7 +166,7 @@ function ProductDetail() {
               className="w-100 py-2"
               disabled={product.stock <= 0}
             >
-              🛒 Add to Cart — ${Number(product.price * quantity).toFixed(2)}
+              🛒 Add to Cart — Rs. {Number(product.price * quantity).toFixed(2)}
             </Button>
 
             <div className="mt-4 d-flex justify-content-around text-muted small">
@@ -207,7 +207,7 @@ function ProductDetail() {
                     <Card.Body className="text-center d-flex flex-column">
                       <Card.Title className="fs-6">{item.name}</Card.Title>
                       <Card.Text className="text-primary fw-bold mb-3">
-                        ${item.price}
+                        Rs. {item.price}
                       </Card.Text>
                       <Button
                         as={Link}
