@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Toast, ToastContainer } from "react-bootstrap";
-import { db, auth } from "../Firebase/firebase"; //  added auth import
+import { db, auth } from "../Firebase/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import "./../Styles/products.css";
 import shoes from "../assets/images/shoes.jpg";
@@ -35,7 +35,7 @@ function Products() {
     fetchProducts();
   }, []);
 
-  // ✅ Updated Add to Cart function with login check
+  //  Updated Add to Cart function with login check
   const handleAddToCart = (productName) => {
     const user = auth.currentUser;
 

@@ -107,7 +107,7 @@ function Login() {
                   Create new account
                 </NavLink>
 
-                <p
+                {/* <p
                   className="mt-2"
                   style={{
                     color: "#0022aaff",
@@ -119,7 +119,7 @@ function Login() {
                   <b>Demo Credentials:</b>
                   <br />
                   Admin: admin@ecommerce.com / admin123
-                </p>
+                </p> */}
               </Form>
             </Card>
           </Col>

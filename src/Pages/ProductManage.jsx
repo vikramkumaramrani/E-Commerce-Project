@@ -7,7 +7,7 @@ import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const categories = ["All Categories", "Electronics", "Sports", "Home", "Grossary"];
+const categories = ["All Categories", "Electronics", "Sports", "Home", "Grossary", "Beverages", "Personal Care"];
 
 const ProductManage = () => {
   const [products, setProducts] = useState([]);
@@ -190,7 +190,7 @@ const ProductManage = () => {
                           {product.category || "N/A"}
                         </Badge>
                       </td>
-                      <td className="fw-semibold">₨{Number(product.price).toFixed(2)}</td>
+                      <td className="fw-semibold">₨. {Number(product.price).toFixed(2)}</td>
                       <td className="fw-semibold">{product.stock}</td>
                       <td>
                         {product.featured && <Badge bg="dark" className="me-1">Featured</Badge>}

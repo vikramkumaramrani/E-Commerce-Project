@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Card, Button, Badge } from "react-bootstrap";
-import { Link, useLocation, useNavigate } from "react-router-dom"; //  Added useNavigate
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db, auth } from "../Firebase/firebase"; //  Added auth import
+import { db, auth } from "../Firebase/firebase";
 import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "./product.css";
@@ -15,7 +15,7 @@ import watch from "../assets/images/watch.jpg";
 
 function Product() {
   const location = useLocation();
-  const navigate = useNavigate(); //  Added for redirect
+  const navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
@@ -141,6 +141,9 @@ function Product() {
                   <option value="fashion">Fashion</option>
                   <option value="home">Home</option>
                   <option value="grossary">Grossary</option>
+                  <option value="Beverages">Beverages</option>
+                  <option value="Personal Care">Personal Care</option>
+
                 </Form.Select>
               </Form.Group>
             </Col>
@@ -149,9 +152,9 @@ function Product() {
                 <Form.Label className="fw-semibold">Price Range</Form.Label>
                 <Form.Select value={price} onChange={e => setPrice(e.target.value)}>
                   <option value="all">All Prices</option>
-                  <option value="0-50">₨ 0 - ₨ 50</option>
-                  <option value="50-100">₨ 50 - ₨ 100</option>
-                  <option value="100+">₨ 100+</option>
+                  <option value="0-50">₨ 0 - ₨ 150</option>
+                  <option value="50-100">₨ 200 - ₨ 400</option>
+                  <option value="100+">₨ 500+</option>
                 </Form.Select>
               </Form.Group>
             </Col>
