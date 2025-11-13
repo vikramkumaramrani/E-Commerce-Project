@@ -58,15 +58,17 @@ function Product() {
   }
 
   if (category !== "all") {
-    filteredProducts = filteredProducts.filter(p => p.category?.toLowerCase() === category);
-  }
+  filteredProducts = filteredProducts.filter(
+    p => p.category?.toLowerCase() === category.toLowerCase()
+  );
+}
 
   if (price !== "all") {
     filteredProducts = filteredProducts.filter(p => {
       const pPrice = p.price || 0;
-      if (price === "0-50") return pPrice <= 50;
-      if (price === "50-100") return pPrice > 50 && pPrice <= 100;
-      if (price === "100+") return pPrice > 100;
+      if (price === "0-150") return pPrice <= 150;
+      if (price === "200-400") return pPrice > 200 && pPrice <= 400;
+      if (price === "500+") return pPrice > 500;
       return true;
     });
   }
@@ -141,8 +143,8 @@ function Product() {
                   <option value="fashion">Fashion</option>
                   <option value="home">Home</option>
                   <option value="grossary">Grossary</option>
-                  <option value="Beverages">Beverages</option>
-                  <option value="Personal Care">Personal Care</option>
+                  <option value="beverages">Beverages</option>
+                  <option value="personal-Care">Personal-Care</option>
 
                 </Form.Select>
               </Form.Group>

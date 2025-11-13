@@ -1,12 +1,12 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";   
-import { getStorage } from "firebase/storage"; 
+import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 
 const firebaseConfig = {
- apiKey: "AIzaSyDNK-5ZHw2tGVLjfnwhoVQDvnA8e48Iltw",
+  apiKey: "AIzaSyDNK-5ZHw2tGVLjfnwhoVQDvnA8e48Iltw",
   authDomain: "e-commerce-project-2f93d.firebaseapp.com",
   projectId: "e-commerce-project-2f93d",
   storageBucket: "e-commerce-project-2f93d.appspot.com",
@@ -15,11 +15,11 @@ const firebaseConfig = {
   measurementId: "G-MCGB4NB127"
 };
 
-
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-
 export const auth = getAuth(app);
+
+
 export const db = getFirestore(app);
-export const storage = getStorage(app); 
+export const storage = getStorage(app);

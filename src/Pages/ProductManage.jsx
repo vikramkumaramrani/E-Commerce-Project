@@ -7,7 +7,7 @@ import MyNavbar from "../components/MyNavbar";
 import Footer from "../components/Footer";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const categories = ["All Categories", "Electronics", "Sports", "Home", "Grossary", "Beverages", "Personal Care"];
+const categories = ["All Categories", "Electronics", "Sports", "Home", "Grossary", "Beverages", "Personal-Care"];
 
 const ProductManage = () => {
   const [products, setProducts] = useState([]);

@@ -73,7 +73,7 @@ function Footer() {
             <h5 className="fw-600">Contact Info</h5>
             <p className="d-flex align-items-center">
               <i className="bi bi-geo-alt-fill text-primary me-2"></i>
-              Commerce St, Business District
+              Commerce St, Business District Tharparkar
             </p>
             <p className="d-flex align-items-center">
               <i className="bi bi-telephone-fill text-primary me-2"></i>
