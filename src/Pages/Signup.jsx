@@ -11,6 +11,7 @@ function Signup() {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
@@ -27,7 +28,7 @@ function Signup() {
       return;
     }
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password, phone);
       const user = userCredential.user;
       await updateProfile(user, { displayName: fullName });
 
@@ -35,6 +36,7 @@ function Signup() {
       await setDoc(doc(db, "users", user.uid), {
         fullName: fullName,
         email: user.email,
+        phone: phone,
         createdAt: new Date(),
         active: true,
       });
@@ -73,6 +75,19 @@ function Signup() {
                     placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+
+
+
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Phone Number</Form.Label>
+                  <Form.Control
+                    type="tel"
+                    placeholder="Enter your phone number"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     required
                   />
                 </Form.Group>
