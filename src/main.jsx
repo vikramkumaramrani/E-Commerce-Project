@@ -10,6 +10,7 @@ import Dashboard from "./Pages/Dashboard.jsx";
 import ProductManage from "./Pages/ProductManage.jsx";
 import OrderManage from "./Pages/OrderManage.jsx";
 import ProductDetail from "./components/ProductDetail.jsx";
+import Delivery from "./Pages/Delivery.jsx";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import MyProvider from "./context/MyProvider.jsx";
@@ -25,7 +26,7 @@ function VisitorTracker({ children }) {
   return <>{children}</>; // wrap children in React Fragment
 }
 
-// 🔹 Render App
+//  Render App
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <MyProvider>
@@ -39,6 +40,7 @@ createRoot(document.getElementById("root")).render(
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/productManage" element={<ProductManage />} />
             <Route path="/orderManage" element={<OrderManage />} />
+            <Route path="/delivery" element={<Delivery />} />
             <Route path="/product" element={<Product />} />
             <Route path="/products" element={<Product />} />
             <Route path="/product/:productId" element={<ProductDetail />} />

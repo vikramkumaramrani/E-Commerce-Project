@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { db } from "../Firebase/firebase";
+import { db, auth } from "../Firebase/firebase"; // auth bhi import kiya
 import { doc, getDoc, collection, query, where, limit, getDocs } from "firebase/firestore";
 import { Container, Row, Col, Button, Spinner, Badge, Card } from "react-bootstrap";
 import { BsArrowLeft } from "react-icons/bs";
@@ -51,6 +51,23 @@ function ProductDetail() {
 
     fetchProduct();
   }, [productId]);
+
+  const handleAddToCart = () => {
+    const user = auth.currentUser; // check login
+
+    if (!user) {
+      const confirmLogin = window.confirm("Please login or sign up to proceed!");
+      if (confirmLogin) {
+        navigate("/login"); // redirect to login
+      }
+      return;
+    }
+
+    // Optional: show alert or add to cart logic
+    alert(`Added ${quantity} x ${product.name} to cart!`);
+
+    navigate("/delivery"); // Navigate to Delivery page
+  };
 
   if (loading)
     return (
@@ -152,19 +169,19 @@ function ProductDetail() {
                 variant="outline-secondary"
                 size="sm"
                 onClick={() =>
-                  setQuantity(
-                    product.stock ? Math.min(product.stock, quantity + 1) : quantity + 1
-                  )
+                  setQuantity(product.stock ? Math.min(product.stock, quantity + 1) : quantity + 1)
                 }
               >
                 +
               </Button>
             </div>
 
+            {/* Updated Add to Cart button */}
             <Button
               variant="dark"
               className="w-100 py-2"
               disabled={product.stock <= 0}
+              onClick={handleAddToCart} // navigate to delivery on click
             >
               🛒 Add to Cart — Rs. {Number(product.price * quantity).toFixed(2)}
             </Button>
