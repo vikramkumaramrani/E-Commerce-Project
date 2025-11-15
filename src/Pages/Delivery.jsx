@@ -242,4 +242,3 @@ useEffect(() => {
 };
 
 export default Delivery;
-F

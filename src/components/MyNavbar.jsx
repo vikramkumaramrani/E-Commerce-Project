@@ -87,22 +87,24 @@ function MyNavbar() {
 
           <Nav className="ms-lg-auto mt-2 mt-lg-0 d-flex align-items-center">
             <div className="d-flex align-items-center me-3">
-              {/*  Cart Icon with total quantity badge */}
-            <div className="position-relative me-3">
-  <Nav.Link as={Link} to="/cart">
-    <FiShoppingCart size={22} />
-    {totalQty > 0 && (
-      <Badge
-        bg="danger"
-        pill
-        className="position-absolute top-0 start-100 translate-middle"
-      >
-        {totalQty}
-      </Badge>
-    )}
-  </Nav.Link>
-</div>
 
+              {/*  Cart Icon with total quantity badge — only if user is logged in */}
+              {user && (
+                <div className="position-relative me-3">
+                  <Nav.Link as={Link} to="/cart">
+                    <FiShoppingCart size={22} />
+                    {totalQty > 0 && (
+                      <Badge
+                        bg="danger"
+                        pill
+                        className="position-absolute top-0 start-100 translate-middle"
+                      >
+                        {totalQty}
+                      </Badge>
+                    )}
+                  </Nav.Link>
+                </div>
+              )}
 
               <Nav.Link
                 as={Link}
@@ -116,9 +118,11 @@ function MyNavbar() {
               >
                 Products
               </Nav.Link>
+
               {location.pathname === "/dashboard" && <FiUser className="ms-1" size={22} />}
             </div>
 
+            {/* Auth Links Hide on Admin Routes */}
             {!hideAuthLinks && (
               <>
                 {user ? (
@@ -143,6 +147,7 @@ function MyNavbar() {
                     >
                       Login
                     </Nav.Link>
+
                     <Nav.Link
                       as={Link}
                       to="/signup"
